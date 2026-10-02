@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Angle Archers — Comparing Angles Arcade</title>
+  <meta name="description" content="Aim your bow, compare angles, and shoot the correct targets in an exciting arcade archery tournament.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800;900&family=Outfit:wght@500;600;700;800;900&family=JetBrains+Mono:wght@700;900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game-app">
+    <div id="game-container">
+      
+      <!-- TOP RETRO ARCADE HUD -->
+      <header id="game-hud" class="hud-panel">
+        <div class="hud-group-left">
+          <div class="hud-box">
+            <span class="hud-label">SCORE</span>
+            <span id="score-display" class="hud-value hud-mono">000000</span>
+          </div>
+
+          <div class="hud-box">
+            <span class="hud-label">LIVES</span>
+            <div id="lives-container" class="lives-container" aria-label="3 lives remaining">
+              <span class="arcade-heart heart-full" id="heart-1"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span>
+              <span class="arcade-heart heart-full" id="heart-2"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span>
+              <span class="arcade-heart heart-full" id="heart-3"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hud-group-center">
+          <div class="hud-box">
+            <span class="hud-label">TIME</span>
+            <span id="timer-display" class="hud-value hud-mono">060</span>
+          </div>
+          <div class="hud-box">
+            <span class="hud-label">ROUND</span>
+            <span id="round-display" class="hud-value">01 / 10</span>
+          </div>
+          <div class="hud-box">
+            <span class="hud-label">STREAK</span>
+            <span id="streak-display" class="hud-value streak-accent">1x</span>
+          </div>
+        </div>
+
+        <div class="hud-group-right">
+          <div class="hud-box aim-badge-box">
+            <span class="hud-label">BOW AIM</span>
+            <span id="aim-display" class="hud-value aim-accent">45°</span>
+          </div>
+          <button id="hud-how-to-play-btn" class="hud-icon-btn" title="How to Play" aria-label="How to Play">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm1.07-7.75l-.9.92C12.45 11.9 12 12.5 12 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
+          </button>
+          <button id="sound-toggle-btn" class="hud-icon-btn" title="Toggle Sound" aria-label="Toggle Sound">
+            <svg id="sound-icon-on" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+            <svg id="sound-icon-off" class="hidden" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- ACTIVE TARGET INSTRUCTION BANNER -->
+      <div id="target-instruction-banner" class="target-banner">
+        <div class="banner-crest">🏹</div>
+        <div class="banner-content">
+          <span class="banner-sub">MISSION</span>
+          <span id="banner-text" class="banner-title">SHOOT THE LARGER ANGLE!</span>
+        </div>
+        <div class="banner-crest">🎯</div>
+      </div>
+
+      <!-- MAIN GAMEPLAY CANVAS -->
+      <main id="gameplay-area">
+        <canvas id="game-canvas" width="960" height="540"></canvas>
+
+        <!-- FEEDBACK POPUP OVERLAY -->
+        <div id="feedback-popup" class="feedback-popup hidden">
+          <div id="feedback-icon" class="feedback-icon">✓</div>
+          <div class="feedback-text-group">
+            <span id="feedback-title" class="feedback-title">TARGET HIT!</span>
+            <span id="feedback-subtitle" class="feedback-subtitle">+100 POINTS</span>
+          </div>
+        </div>
+      </main>
+
+      <!-- ON-SCREEN TOUCH / MOBILE CONTROLS -->
+      <div id="touch-controls" class="touch-bar">
+        <div class="touch-aim-group">
+          <button id="btn-aim-left" class="btn-touch btn-aim" aria-label="Aim Left (Counter-Clockwise)">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+            <span>AIM UP</span>
+          </button>
+          
+          <div class="aim-slider-container">
+            <input type="range" id="aim-slider" min="10" max="80" value="45" aria-label="Bow Aim Angle">
+          </div>
+
+          <button id="btn-aim-right" class="btn-touch btn-aim" aria-label="Aim Right (Clockwise)">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            <span>AIM DOWN</span>
+          </button>
+        </div>
+
+        <button id="btn-shoot" class="btn-touch btn-shoot" aria-label="Shoot Arrow">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          <span>RELEASE ARROW</span>
+        </button>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- OVERLAYS & MODALS -->
+      <!-- ================================================================= -->
+
+      <!-- 1. START SCREEN -->
+      <div id="start-screen" class="modal-overlay">
+        <div class="modal-card start-card">
+          <div class="title-badge">ARCHERY ARENA</div>
+          <h1 class="game-title">ANGLE ARCHERS</h1>
+          <p class="game-subtitle">COMPARING ANGLES CHAMPIONSHIP</p>
+
+          <div class="start-preview-box">
+            <div class="preview-target">
+              <div class="angle-demo">
+                <span class="demo-deg">35°</span>
+                <svg width="60" height="60" viewBox="0 0 100 100">
+                  <path d="M 20 80 L 80 80" stroke="#f8fafc" stroke-width="6" stroke-linecap="round"/>
+                  <path d="M 20 80 L 70 35" stroke="#f8fafc" stroke-width="6" stroke-linecap="round"/>
+                  <path d="M 45 80 A 25 25 0 0 0 40 62" stroke="#38bdf8" stroke-width="5" fill="none"/>
+                </svg>
+              </div>
+              <span class="preview-label">SMALLER</span>
+            </div>
+            
+            <div class="preview-vs">VS</div>
+
+            <div class="preview-target">
+              <div class="angle-demo highlight">
+                <span class="demo-deg">70°</span>
+                <svg width="60" height="60" viewBox="0 0 100 100">
+                  <path d="M 20 80 L 80 80" stroke="#f8fafc" stroke-width="6" stroke-linecap="round"/>
+                  <path d="M 20 80 L 40 25" stroke="#f8fafc" stroke-width="6" stroke-linecap="round"/>
+                  <path d="M 45 80 A 25 25 0 0 0 27 48" stroke="#fbbf24" stroke-width="5" fill="none"/>
+                </svg>
+              </div>
+              <span class="preview-label">LARGER</span>
+            </div>
+          </div>
+
+          <div class="start-instructions-hint">
+            <div class="hint-step"><span class="step-num">1</span> Compare Targets</div>
+            <div class="hint-step"><span class="step-num">2</span> Aim Your Bow</div>
+            <div class="hint-step"><span class="step-num">3</span> Shoot to Win!</div>
+          </div>
+
+          <div class="modal-actions">
+            <button id="start-game-btn" class="arcade-btn btn-primary btn-large">
+              <span>START TOURNAMENT</span>
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <button id="how-to-play-btn" class="arcade-btn btn-secondary">
+              <span>HOW TO PLAY</span>
+            </button>
+          </div>
+
+          <div class="controls-legend">
+            <span>⌨️ <b>A / D</b> or <b>Arrow Keys</b> to Aim &bull; <b>SPACE</b> or <b>Click</b> to Shoot</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. HOW TO PLAY MODAL -->
+      <div id="instructions-modal" class="modal-overlay hidden">
+        <div class="modal-card instructions-card">
+          <div class="modal-header">
+            <h2 class="modal-title">HOW TO PLAY</h2>
+            <button id="close-instructions-btn" class="close-btn" aria-label="Close">&times;</button>
+          </div>
+
+          <div class="instructions-grid">
+            <div class="inst-item">
+              <div class="inst-icon-wrap">
+                <svg viewBox="0 0 24 24" width="36" height="36" fill="#38bdf8"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+              </div>
+              <div class="inst-text">
+                <h3>1. READ THE MISSION</h3>
+                <p>Check the banner instruction at the top: <b>Shoot the Larger Angle</b>, <b>Smaller Angle</b>, or <b>Equal Angle</b>.</p>
+              </div>
+            </div>
+
+            <div class="inst-item">
+              <div class="inst-icon-wrap">
+                <svg viewBox="0 0 24 24" width="36" height="36" fill="#fbbf24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+              </div>
+              <div class="inst-text">
+                <h3>2. COMPARE ANGLE ARCS</h3>
+                <p>Look at the angle degrees and visual opening arcs on each target stand to find the correct answer.</p>
+              </div>
+            </div>
+
+            <div class="inst-item">
+              <div class="inst-icon-wrap">
+                <svg viewBox="0 0 24 24" width="36" height="36" fill="#10b981"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+              </div>
+              <div class="inst-text">
+                <h3>3. AIM & SHOOT</h3>
+                <p>Rotate your bow using <b>A/D</b>, <b>Arrow Keys</b>, or <b>Mouse Aim</b>. Press <b>SPACE</b> or <b>Click</b> to loose your arrow!</p>
+              </div>
+            </div>
+
+            <div class="inst-item">
+              <div class="inst-icon-wrap">
+                <svg viewBox="0 0 24 24" width="36" height="36" fill="#f43f5e"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+              </div>
+              <div class="inst-text">
+                <h3>4. BUILD YOUR STREAK</h3>
+                <p>Hit correct targets consecutively to multiply your points up to <b>5x Streak</b>! Complete all 10 rounds to earn Master rank.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button id="start-from-instructions-btn" class="arcade-btn btn-primary btn-large">
+              <span>LET'S SHOOT!</span>
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. GAME OVER MODAL -->
+      <div id="game-over-modal" class="modal-overlay hidden">
+        <div class="modal-card end-card game-over-style">
+          <div class="end-badge badge-loss">OUT OF ARROWS</div>
+          <h2 class="modal-title">GAME OVER</h2>
+          <p class="end-sub">Don't give up, archer! Sharpen your angle eye and try again.</p>
+
+          <div class="end-stats-grid">
+            <div class="end-stat-box">
+              <span class="stat-label">FINAL SCORE</span>
+              <span id="game-over-score" class="stat-value hud-mono">000000</span>
+            </div>
+            <div class="end-stat-box">
+              <span class="stat-label">ROUNDS CLEARED</span>
+              <span id="game-over-rounds" class="stat-value">0 / 10</span>
+            </div>
+            <div class="end-stat-box">
+              <span class="stat-label">BEST STREAK</span>
+              <span id="game-over-streak" class="stat-value">1x</span>
+            </div>
+            <div class="end-stat-box">
+              <span class="stat-label">ACCURACY</span>
+              <span id="game-over-accuracy" class="stat-value">0%</span>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button id="game-over-retry-btn" class="arcade-btn btn-primary btn-large">
+              <span>PLAY AGAIN</span>
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. VICTORY MODAL -->
+      <div id="victory-modal" class="modal-overlay hidden">
+        <div class="modal-card end-card victory-style">
+          <div class="end-badge badge-win">CHAMPION ARCHER</div>
+          <h2 class="modal-title victory-title">TOURNAMENT CLEARED!</h2>
+          <p class="end-sub">Outstanding marksmanship and angle mastery!</p>
+
+          <div id="victory-stars" class="victory-stars">
+            <span class="star-item star-earned">★</span>
+            <span class="star-item star-earned">★</span>
+            <span class="star-item star-earned">★</span>
+          </div>
+
+          <div class="end-stats-grid">
+            <div class="end-stat-box highlight-box">
+              <span class="stat-label">TOTAL SCORE</span>
+              <span id="victory-score" class="stat-value hud-mono">004850</span>
+            </div>
+            <div class="end-stat-box">
+              <span class="stat-label">TIME TAKEN</span>
+              <span id="victory-time" class="stat-value hud-mono">042s</span>
+            </div>
+            <div class="end-stat-box">
+              <span class="stat-label">MAX STREAK</span>
+              <span id="victory-streak" class="stat-value streak-accent">10x</span>
+            </div>
+            <div class="end-stat-box">
+              <span class="stat-label">ACCURACY</span>
+              <span id="victory-accuracy" class="stat-value">100%</span>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button id="victory-play-again-btn" class="arcade-btn btn-primary btn-large">
+              <span>PLAY AGAIN</span>
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
