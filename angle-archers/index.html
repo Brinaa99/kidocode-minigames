@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Angle Archers — Comparing Angles Arcade</title>
-  <meta name="description" content="Aim your bow, compare angles, and shoot the correct targets in an exciting arcade archery tournament.">
+  <meta name="description" content="Aim your bow, compare angle magnitudes visually, and shoot the correct targets in a thrilling arcade archery tournament.">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,12 +20,12 @@
       <!-- TOP RETRO ARCADE HUD -->
       <header id="game-hud" class="hud-panel">
         <div class="hud-group-left">
-          <div class="hud-box">
+          <div class="hud-box score-box">
             <span class="hud-label">SCORE</span>
             <span id="score-display" class="hud-value hud-mono">000000</span>
           </div>
 
-          <div class="hud-box">
+          <div class="hud-box lives-box">
             <span class="hud-label">LIVES</span>
             <div id="lives-container" class="lives-container" aria-label="3 lives remaining">
               <span class="arcade-heart heart-full" id="heart-1"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span>
@@ -33,20 +33,32 @@
               <span class="arcade-heart heart-full" id="heart-3"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span>
             </div>
           </div>
+
+          <div class="hud-box attempts-box">
+            <span class="hud-label">ARROWS</span>
+            <div id="quiver-display" class="quiver-display" aria-label="2 arrows left">
+              <span class="quiver-arrow" id="arrow-slot-1">🏹</span>
+              <span class="quiver-arrow" id="arrow-slot-2">🏹</span>
+            </div>
+          </div>
         </div>
 
         <div class="hud-group-center">
-          <div class="hud-box">
+          <div class="hud-box time-box">
             <span class="hud-label">TIME</span>
             <span id="timer-display" class="hud-value hud-mono">060</span>
           </div>
-          <div class="hud-box">
+          <div class="hud-box round-box">
             <span class="hud-label">ROUND</span>
             <span id="round-display" class="hud-value">01 / 10</span>
           </div>
-          <div class="hud-box">
+          <div class="hud-box streak-box">
             <span class="hud-label">STREAK</span>
             <span id="streak-display" class="hud-value streak-accent">1x</span>
+          </div>
+          <div id="wind-badge-box" class="hud-box wind-box hidden">
+            <span class="hud-label">WIND</span>
+            <span id="wind-display" class="hud-value wind-accent">CALM</span>
           </div>
         </div>
 
@@ -55,6 +67,9 @@
             <span class="hud-label">BOW AIM</span>
             <span id="aim-display" class="hud-value aim-accent">45°</span>
           </div>
+          <button id="pause-btn" class="hud-icon-btn" title="Pause Game" aria-label="Pause Game">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+          </button>
           <button id="hud-how-to-play-btn" class="hud-icon-btn" title="How to Play" aria-label="How to Play">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm1.07-7.75l-.9.92C12.45 11.9 12 12.5 12 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
           </button>
@@ -75,9 +90,9 @@
         <div class="banner-crest">🎯</div>
       </div>
 
-      <!-- MAIN GAMEPLAY CANVAS -->
+      <!-- MAIN GAMEPLAY CANVAS AREA -->
       <main id="gameplay-area">
-        <canvas id="game-canvas" width="960" height="540"></canvas>
+        <canvas id="game-canvas"></canvas>
 
         <!-- FEEDBACK POPUP OVERLAY -->
         <div id="feedback-popup" class="feedback-popup hidden">
@@ -87,29 +102,28 @@
             <span id="feedback-subtitle" class="feedback-subtitle">+100 POINTS</span>
           </div>
         </div>
+
+        <!-- CONTROLS HELPER OVERLAY (Subtle desktop keyboard helper) -->
+        <div id="desktop-controls-hint" class="controls-hint-bar">
+          <span>⌨️ <b>A / D</b> or <b>← / →</b> to Aim &bull; <b>SPACE</b> to Shoot &bull; <b>DRAG & CLICK</b> with Mouse</span>
+        </div>
       </main>
 
-      <!-- ON-SCREEN TOUCH / MOBILE CONTROLS -->
+      <!-- RESPONSIVE TOUCH & ON-SCREEN CONTROLS -->
       <div id="touch-controls" class="touch-bar">
-        <div class="touch-aim-group">
-          <button id="btn-aim-left" class="btn-touch btn-aim" aria-label="Aim Left (Counter-Clockwise)">
-            <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
-            <span>AIM UP</span>
-          </button>
-          
-          <div class="aim-slider-container">
-            <input type="range" id="aim-slider" min="10" max="80" value="45" aria-label="Bow Aim Angle">
-          </div>
+        <button id="btn-aim-left" class="btn-touch btn-aim" aria-label="Aim Up">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+          <span>AIM UP</span>
+        </button>
 
-          <button id="btn-aim-right" class="btn-touch btn-aim" aria-label="Aim Right (Clockwise)">
-            <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
-            <span>AIM DOWN</span>
-          </button>
-        </div>
+        <button id="btn-shoot" class="btn-touch btn-shoot" aria-label="Release Arrow">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          <span>SHOOT!</span>
+        </button>
 
-        <button id="btn-shoot" class="btn-touch btn-shoot" aria-label="Shoot Arrow">
-          <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-          <span>RELEASE ARROW</span>
+        <button id="btn-aim-right" class="btn-touch btn-aim" aria-label="Aim Down">
+          <span>AIM DOWN</span>
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
         </button>
       </div>
 
@@ -120,18 +134,19 @@
       <!-- 1. START SCREEN -->
       <div id="start-screen" class="modal-overlay">
         <div class="modal-card start-card">
-          <div class="title-badge">ARCHERY ARENA</div>
+          <div class="title-badge">TOURNAMENT ARENA</div>
           <h1 class="game-title">ANGLE ARCHERS</h1>
           <p class="game-subtitle">COMPARING ANGLES CHAMPIONSHIP</p>
 
           <div class="start-preview-box">
             <div class="preview-target">
               <div class="angle-demo">
-                <span class="demo-deg">35°</span>
-                <svg width="60" height="60" viewBox="0 0 100 100">
+                <span class="demo-deg">30°</span>
+                <svg width="64" height="64" viewBox="0 0 100 100">
                   <path d="M 20 80 L 80 80" stroke="#f8fafc" stroke-width="6" stroke-linecap="round"/>
-                  <path d="M 20 80 L 70 35" stroke="#f8fafc" stroke-width="6" stroke-linecap="round"/>
-                  <path d="M 45 80 A 25 25 0 0 0 40 62" stroke="#38bdf8" stroke-width="5" fill="none"/>
+                  <path d="M 20 80 L 72 50" stroke="#f8fafc" stroke-width="6" stroke-linecap="round"/>
+                  <path d="M 45 80 A 25 25 0 0 0 42 67" stroke="#38bdf8" stroke-width="5" fill="none"/>
+                  <circle cx="20" cy="80" r="5" fill="#f59e0b"/>
                 </svg>
               </div>
               <span class="preview-label">SMALLER</span>
@@ -142,10 +157,11 @@
             <div class="preview-target">
               <div class="angle-demo highlight">
                 <span class="demo-deg">70°</span>
-                <svg width="60" height="60" viewBox="0 0 100 100">
+                <svg width="64" height="64" viewBox="0 0 100 100">
                   <path d="M 20 80 L 80 80" stroke="#f8fafc" stroke-width="6" stroke-linecap="round"/>
                   <path d="M 20 80 L 40 25" stroke="#f8fafc" stroke-width="6" stroke-linecap="round"/>
                   <path d="M 45 80 A 25 25 0 0 0 27 48" stroke="#fbbf24" stroke-width="5" fill="none"/>
+                  <circle cx="20" cy="80" r="5" fill="#f59e0b"/>
                 </svg>
               </div>
               <span class="preview-label">LARGER</span>
@@ -153,9 +169,9 @@
           </div>
 
           <div class="start-instructions-hint">
-            <div class="hint-step"><span class="step-num">1</span> Compare Targets</div>
-            <div class="hint-step"><span class="step-num">2</span> Aim Your Bow</div>
-            <div class="hint-step"><span class="step-num">3</span> Shoot to Win!</div>
+            <div class="hint-step"><span class="step-num">1</span> Compare Angles</div>
+            <div class="hint-step"><span class="step-num">2</span> Aim Bow</div>
+            <div class="hint-step"><span class="step-num">3</span> Shoot Target!</div>
           </div>
 
           <div class="modal-actions">
@@ -169,7 +185,7 @@
           </div>
 
           <div class="controls-legend">
-            <span>⌨️ <b>A / D</b> or <b>Arrow Keys</b> to Aim &bull; <b>SPACE</b> or <b>Click</b> to Shoot</span>
+            <span>⌨️ <b>A / D</b> to Aim &bull; <b>SPACE</b> to Shoot &bull; <b>Click & Drag</b> on Mouse/Touch</span>
           </div>
         </div>
       </div>
@@ -189,7 +205,7 @@
               </div>
               <div class="inst-text">
                 <h3>1. READ THE MISSION</h3>
-                <p>Check the banner instruction at the top: <b>Shoot the Larger Angle</b>, <b>Smaller Angle</b>, or <b>Equal Angle</b>.</p>
+                <p>Check the mission banner: <b>Shoot the Larger Angle</b>, <b>Smaller Angle</b>, or <b>Equal Angle</b>.</p>
               </div>
             </div>
 
@@ -199,7 +215,7 @@
               </div>
               <div class="inst-text">
                 <h3>2. COMPARE ANGLE ARCS</h3>
-                <p>Look at the angle degrees and visual opening arcs on each target stand to find the correct answer.</p>
+                <p>Observe the ray opening arcs and degree values displayed on each target stand to identify the correct angle.</p>
               </div>
             </div>
 
@@ -209,7 +225,7 @@
               </div>
               <div class="inst-text">
                 <h3>3. AIM & SHOOT</h3>
-                <p>Rotate your bow using <b>A/D</b>, <b>Arrow Keys</b>, or <b>Mouse Aim</b>. Press <b>SPACE</b> or <b>Click</b> to loose your arrow!</p>
+                <p>Rotate your bow with <b>A / D</b>, <b>Arrow Keys</b>, or <b>Mouse Drag</b>. Follow the trajectory guide and press <b>SPACE</b> or tap <b>SHOOT</b>!</p>
               </div>
             </div>
 
@@ -218,8 +234,8 @@
                 <svg viewBox="0 0 24 24" width="36" height="36" fill="#f43f5e"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
               </div>
               <div class="inst-text">
-                <h3>4. BUILD YOUR STREAK</h3>
-                <p>Hit correct targets consecutively to multiply your points up to <b>5x Streak</b>! Complete all 10 rounds to earn Master rank.</p>
+                <h3>4. BUILD STREAKS</h3>
+                <p>Hit targets consecutively to boost your score multiplier up to <b>10x Streak</b>! Watch out for moving targets and wind in later rounds.</p>
               </div>
             </div>
           </div>
@@ -233,12 +249,31 @@
         </div>
       </div>
 
-      <!-- 3. GAME OVER MODAL -->
+      <!-- 3. PAUSE MODAL -->
+      <div id="pause-modal" class="modal-overlay hidden">
+        <div class="modal-card pause-card">
+          <div class="title-badge">TOURNAMENT PAUSED</div>
+          <h2 class="modal-title">GAME PAUSED</h2>
+          <p class="end-sub">Catch your breath, master archer!</p>
+
+          <div class="modal-actions">
+            <button id="resume-btn" class="arcade-btn btn-primary btn-large">
+              <span>RESUME GAME</span>
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <button id="restart-from-pause-btn" class="arcade-btn btn-secondary">
+              <span>RESTART TOURNAMENT</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. GAME OVER MODAL -->
       <div id="game-over-modal" class="modal-overlay hidden">
         <div class="modal-card end-card game-over-style">
-          <div class="end-badge badge-loss">OUT OF ARROWS</div>
+          <div class="end-badge badge-loss">OUT OF LIVES</div>
           <h2 class="modal-title">GAME OVER</h2>
-          <p class="end-sub">Don't give up, archer! Sharpen your angle eye and try again.</p>
+          <p class="end-sub">Keep your focus! Compare the angle openings carefully and try again.</p>
 
           <div class="end-stats-grid">
             <div class="end-stat-box">
@@ -268,17 +303,17 @@
         </div>
       </div>
 
-      <!-- 4. VICTORY MODAL -->
+      <!-- 5. VICTORY MODAL -->
       <div id="victory-modal" class="modal-overlay hidden">
         <div class="modal-card end-card victory-style">
           <div class="end-badge badge-win">CHAMPION ARCHER</div>
-          <h2 class="modal-title victory-title">TOURNAMENT CLEARED!</h2>
-          <p class="end-sub">Outstanding marksmanship and angle mastery!</p>
+          <h2 class="modal-title victory-title">ARCHERY COMPLETE!</h2>
+          <p class="end-sub">Magnificent marksmanship and angle comparison mastery!</p>
 
           <div id="victory-stars" class="victory-stars">
-            <span class="star-item star-earned">★</span>
-            <span class="star-item star-earned">★</span>
-            <span class="star-item star-earned">★</span>
+            <span class="star-item star-earned" id="v-star-1">★</span>
+            <span class="star-item star-earned" id="v-star-2">★</span>
+            <span class="star-item star-earned" id="v-star-3">★</span>
           </div>
 
           <div class="end-stats-grid">
