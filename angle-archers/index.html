@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Angle Archers — Comparing Angles Arcade</title>
-  <meta name="description" content="Aim your bow, compare angle magnitudes visually, and shoot the correct targets in a thrilling arcade archery tournament.">
+  <meta name="description" content="Aim your bow, compare angle magnitudes visually, and shoot the correct targets in an exciting arcade archery tournament.">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -56,6 +56,10 @@
             <span class="hud-label">STREAK</span>
             <span id="streak-display" class="hud-value streak-accent">1x</span>
           </div>
+          <div class="hud-box aim-badge-box">
+            <span class="hud-label">BOW AIM</span>
+            <span id="aim-display" class="hud-value aim-accent">45°</span>
+          </div>
           <div id="wind-badge-box" class="hud-box wind-box hidden">
             <span class="hud-label">WIND</span>
             <span id="wind-display" class="hud-value wind-accent">CALM</span>
@@ -63,10 +67,6 @@
         </div>
 
         <div class="hud-group-right">
-          <div class="hud-box aim-badge-box">
-            <span class="hud-label">BOW AIM</span>
-            <span id="aim-display" class="hud-value aim-accent">45°</span>
-          </div>
           <button id="pause-btn" class="hud-icon-btn" title="Pause Game" aria-label="Pause Game">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
           </button>
@@ -103,7 +103,7 @@
           </div>
         </div>
 
-        <!-- CONTROLS HELPER OVERLAY (Subtle desktop keyboard helper) -->
+        <!-- CONTROLS HELPER OVERLAY (Desktop keyboard helper) -->
         <div id="desktop-controls-hint" class="controls-hint-bar">
           <span>⌨️ <b>A / D</b> or <b>← / →</b> to Aim &bull; <b>SPACE</b> to Shoot &bull; <b>DRAG & CLICK</b> with Mouse</span>
         </div>
@@ -112,18 +112,18 @@
       <!-- RESPONSIVE TOUCH & ON-SCREEN CONTROLS -->
       <div id="touch-controls" class="touch-bar">
         <button id="btn-aim-left" class="btn-touch btn-aim" aria-label="Aim Up">
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
           <span>AIM UP</span>
         </button>
 
         <button id="btn-shoot" class="btn-touch btn-shoot" aria-label="Release Arrow">
-          <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
           <span>SHOOT!</span>
         </button>
 
         <button id="btn-aim-right" class="btn-touch btn-aim" aria-label="Aim Down">
           <span>AIM DOWN</span>
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
         </button>
       </div>
 

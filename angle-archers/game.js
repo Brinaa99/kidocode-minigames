@@ -1,9 +1,8 @@
 /**
  * ANGLE ARCHERS — COMPARING ANGLES ARCADE
- * Upgraded Fullscreen Interactive Archery Tournament Game
  * Mathematics Topic: Comparing Angles (Year 4 Cambridge Standard)
- * Full responsive canvas, prominent animated archer, ballistic physics, trajectory guides,
- * moving targets, wind mechanics, combo system, audio synthesizer & StuCent integration.
+ * Full responsive canvas without black borders, clean archer visualization,
+ * Bow Aim in Top HUD, target angle placards, ballistic physics & StuCent hooks.
  */
 
 (() => {
@@ -116,15 +115,13 @@
       if (!this.ctx) return;
 
       if (isCorrect) {
-        // Wooden thunk + triumphant bell arpeggio
         this.playTone(190, 'triangle', 0.08, 0.4, 0.01, 70);
         setTimeout(() => {
-          this.playTone(523.25, 'sine', 0.22, 0.3, 0.01); // C5
-          setTimeout(() => this.playTone(659.25, 'sine', 0.22, 0.3, 0.01), 60); // E5
-          setTimeout(() => this.playTone(783.99, 'sine', 0.35, 0.35, 0.01), 120); // G5
+          this.playTone(523.25, 'sine', 0.22, 0.3, 0.01);
+          setTimeout(() => this.playTone(659.25, 'sine', 0.22, 0.3, 0.01), 60);
+          setTimeout(() => this.playTone(783.99, 'sine', 0.35, 0.35, 0.01), 120);
         }, 40);
       } else {
-        // Dull wood thud + error dissonance tone
         this.playTone(120, 'sawtooth', 0.22, 0.35, 0.01, 50);
         setTimeout(() => this.playTone(85, 'sawtooth', 0.3, 0.3, 0.01, 40), 60);
       }
@@ -213,7 +210,7 @@
         { angleDeg: 55, label: "B" }
       ],
       rule: "smaller",
-      movement: "gentle_sway", // Introduces gentle movement
+      movement: "gentle_sway",
       hasWind: false
     },
     {
@@ -224,7 +221,7 @@
         { angleDeg: 70, label: "A" },
         { angleDeg: 70, label: "B" }
       ],
-      rule: "equal", // Both targets are valid!
+      rule: "equal",
       movement: "gentle_sway",
       hasWind: false
     },
@@ -279,7 +276,7 @@
       rule: "smallest",
       movement: "active_sway",
       hasWind: true,
-      windSpeed: 1.5 // Light breeze
+      windSpeed: 1.5
     },
     {
       roundNum: 10,
@@ -293,16 +290,15 @@
       rule: "largest",
       movement: "active_sway",
       hasWind: true,
-      windSpeed: -2.2 // Gusty wind
+      windSpeed: -2.0
     }
   ];
 
   // ==========================================================================
-  // 3. GAME STATE & CONSTANTS
+  // 3. GAME STATE & RESPONSIVE DIMENSIONS
   // ==========================================================================
-  // Virtual Coordinate Space for consistent math and responsive aspect scaling
-  const V_WIDTH = 1280;
-  const V_HEIGHT = 720;
+  let viewWidth = 1000;
+  let viewHeight = 600;
 
   const gameState = {
     screen: 'START', // 'START', 'INSTRUCTIONS', 'PLAYING', 'PAUSED', 'GAME_OVER', 'VICTORY'
@@ -328,40 +324,31 @@
     ambientClouds: [],
     ambientLeaves: [],
     roundStartTime: 0,
-    windValue: 0, // Wind acceleration affecting arrow.vx
+    windValue: 0,
     isPointerAiming: false,
     gameTime: 0
   };
 
-  // Upgraded prominent Archer character
+  // Archer character state
   const archer = {
-    x: 200,
-    y: 560,
-    baseScale: 1.4,
-    aimAngle: 45, // Aim angle in degrees (10° to 80°)
+    x: 160,
+    y: 480,
+    baseScale: 1.2,
+    aimAngle: 45, // Aim angle in degrees
     targetAimAngle: 45,
     minAim: 10,
     maxAim: 80,
-    bowDraw: 0, // 0 (rest) to 1 (full tension)
     recoil: 0,
     idleTimer: 0
   };
 
-  // Active arrow projectile
   let arrow = null;
-
-  // Cached DOM Elements
   const dom = {};
-
-  // Canvas context and scale factors
   let canvas = null;
   let ctx = null;
-  let canvasScale = 1;
-  let canvasOffsetX = 0;
-  let canvasOffsetY = 0;
 
   // ==========================================================================
-  // 4. INITIALIZATION & RESPONSIVE SETUP
+  // 4. INITIALIZATION & FULLSCREEN RESPONSIVENESS
   // ==========================================================================
   function initDOM() {
     canvas = document.getElementById('game-canvas');
@@ -425,41 +412,43 @@
     const container = document.getElementById('gameplay-area');
     if (!container || !canvas) return;
 
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+    viewWidth = container.clientWidth;
+    viewHeight = container.clientHeight;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
+    canvas.width = viewWidth * dpr;
+    canvas.height = viewHeight * dpr;
+    canvas.style.width = `${viewWidth}px`;
+    canvas.style.height = `${viewHeight}px`;
 
-    // Uniform aspect scaling with center alignment
-    const scaleX = width / V_WIDTH;
-    const scaleY = height / V_HEIGHT;
-    canvasScale = Math.min(scaleX, scaleY);
+    // Reposition archer fluidly to match new dimensions
+    archer.x = Math.max(100, Math.min(220, viewWidth * 0.16));
+    archer.y = viewHeight - (viewHeight < 550 ? 80 : 120);
+    archer.baseScale = Math.max(0.9, Math.min(1.35, viewHeight / 520));
 
-    canvasOffsetX = (width - V_WIDTH * canvasScale) / 2;
-    canvasOffsetY = (height - V_HEIGHT * canvasScale) / 2;
+    // Reposition targets if a round is currently active
+    if (gameState.currentRoundData) {
+      updateTargetPositionsForResize(gameState.currentRoundData);
+    }
   }
 
   function setupAmbientScenery() {
     gameState.ambientClouds = [
-      { x: 80, y: 70, speed: 0.25, scale: 1.1 },
-      { x: 520, y: 110, speed: 0.18, scale: 0.85 },
-      { x: 980, y: 55, speed: 0.3, scale: 1.3 }
+      { x: 100, y: 50, speed: 0.25, scale: 1.1 },
+      { x: 480, y: 90, speed: 0.18, scale: 0.85 },
+      { x: 880, y: 40, speed: 0.3, scale: 1.2 }
     ];
 
     gameState.ambientLeaves = [];
-    for (let i = 0; i < 18; i++) {
+    for (let i = 0; i < 16; i++) {
       gameState.ambientLeaves.push({
-        x: Math.random() * V_WIDTH,
-        y: Math.random() * V_HEIGHT,
-        vx: 0.6 + Math.random() * 0.9,
-        vy: 0.3 + Math.random() * 0.6,
+        x: Math.random() * 1200,
+        y: Math.random() * 700,
+        vx: 0.6 + Math.random() * 0.8,
+        vy: 0.3 + Math.random() * 0.5,
         rot: Math.random() * Math.PI * 2,
-        rotSpeed: (Math.random() - 0.5) * 0.06,
-        size: 4 + Math.random() * 5,
+        rotSpeed: (Math.random() - 0.5) * 0.05,
+        size: 3.5 + Math.random() * 4,
         color: Math.random() > 0.5 ? '#10b981' : '#f59e0b'
       });
     }
@@ -492,7 +481,6 @@
       if (gameState.screen === 'START') startGame();
     });
 
-    // Pause / Resume Handlers
     dom.pauseBtn.addEventListener('click', togglePause);
     dom.resumeBtn.addEventListener('click', togglePause);
     dom.restartFromPauseBtn.addEventListener('click', () => {
@@ -574,26 +562,25 @@
       }
     });
 
-    // Mouse / Touch Aiming on Canvas (Convert client coordinates to Virtual space)
-    function getVirtualMousePos(e) {
+    // Mouse / Touch Aiming
+    function getCanvasPointerPos(e) {
       const rect = canvas.getBoundingClientRect();
-      const clientX = e.clientX - rect.left;
-      const clientY = e.clientY - rect.top;
-      const vX = (clientX - canvasOffsetX) / canvasScale;
-      const vY = (clientY - canvasOffsetY) / canvasScale;
-      return { x: vX, y: vY };
+      return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      };
     }
 
     canvas.addEventListener('pointerdown', (e) => {
       if (gameState.screen !== 'PLAYING') return;
       gameState.isPointerAiming = true;
-      const pos = getVirtualMousePos(e);
+      const pos = getCanvasPointerPos(e);
       aimTowardPoint(pos.x, pos.y);
     });
 
     canvas.addEventListener('pointermove', (e) => {
       if (gameState.screen !== 'PLAYING' || gameState.isShooting) return;
-      const pos = getVirtualMousePos(e);
+      const pos = getCanvasPointerPos(e);
       aimTowardPoint(pos.x, pos.y);
     });
 
@@ -601,8 +588,7 @@
       if (gameState.screen !== 'PLAYING' || gameState.isShooting) return;
       if (gameState.isPointerAiming) {
         gameState.isPointerAiming = false;
-        // Loose arrow on click/tap release
-        const pos = getVirtualMousePos(e);
+        const pos = getCanvasPointerPos(e);
         aimTowardPoint(pos.x, pos.y);
         shootArrow();
       }
@@ -613,10 +599,10 @@
     });
   }
 
-  function aimTowardPoint(vx, vy) {
-    const dx = vx - archer.x;
-    const dy = archer.y - vy; // Math coordinate system (up is positive)
-    if (dx > 30) {
+  function aimTowardPoint(px, py) {
+    const dx = px - archer.x;
+    const dy = archer.y - py; // Math coordinate system (up is positive)
+    if (dx > 25) {
       let angleDeg = Math.atan2(dy, dx) * (180 / Math.PI);
       angleDeg = Math.max(archer.minAim, Math.min(archer.maxAim, angleDeg));
       archer.targetAimAngle = angleDeg;
@@ -709,9 +695,8 @@
     gameState.isShooting = false;
     arrow = null;
 
-    // Wind setup
     if (roundConfig.hasWind) {
-      gameState.windValue = roundConfig.windSpeed || (Math.random() > 0.5 ? 1.8 : -1.8);
+      gameState.windValue = roundConfig.windSpeed || (Math.random() > 0.5 ? 1.5 : -1.5);
       dom.windBadgeBox.classList.remove('hidden');
       const dirText = gameState.windValue > 0 ? `⮞ ${Math.abs(gameState.windValue).toFixed(1)}` : `⮜ ${Math.abs(gameState.windValue).toFixed(1)}`;
       dom.windDisplay.textContent = dirText;
@@ -726,7 +711,7 @@
     setupTargetPositions(roundConfig);
     updateHUD();
 
-    // Initial aim suggestion toward first target for immediate player satisfaction
+    // Aim toward first target initially
     if (gameState.targetPositions.length > 0) {
       const firstTarget = gameState.targetPositions[0];
       const dx = firstTarget.baseX - archer.x;
@@ -739,17 +724,25 @@
   function setupTargetPositions(roundConfig) {
     gameState.targetPositions = [];
     const count = roundConfig.targetCount;
-    const targetY = 280; // Optimal vertical placement in virtual arena
+    const targetY = Math.max(140, Math.min(240, viewHeight * 0.36));
 
     const angles = roundConfig.targets.map(t => t.angleDeg);
     const maxAngle = Math.max(...angles);
     const minAngle = Math.min(...angles);
 
     let xPositions = [];
+    const usableW = viewWidth - archer.x;
     if (count === 2) {
-      xPositions = [620, 1020];
+      xPositions = [
+        archer.x + usableW * 0.38,
+        archer.x + usableW * 0.78
+      ];
     } else {
-      xPositions = [520, 800, 1080];
+      xPositions = [
+        archer.x + usableW * 0.28,
+        archer.x + usableW * 0.58,
+        archer.x + usableW * 0.86
+      ];
     }
 
     roundConfig.targets.forEach((t, i) => {
@@ -759,7 +752,7 @@
       } else if (roundConfig.rule === 'smaller' || roundConfig.rule === 'smallest') {
         isCorrect = t.angleDeg === minAngle;
       } else if (roundConfig.rule === 'equal') {
-        isCorrect = true; // All equal angles are correct!
+        isCorrect = true;
       }
 
       gameState.targetPositions.push({
@@ -771,12 +764,40 @@
         baseY: targetY,
         x: xPositions[i],
         y: targetY,
-        radius: 54, // Circular target radius
+        radius: Math.max(42, Math.min(54, viewHeight * 0.085)),
         hitReaction: 0,
-        swayOffset: i * 1.5, // Phase offset for movement
+        swayOffset: i * 1.5,
         movement: roundConfig.movement,
         stuckArrows: []
       });
+    });
+  }
+
+  function updateTargetPositionsForResize(roundConfig) {
+    const count = roundConfig.targetCount;
+    const targetY = Math.max(140, Math.min(240, viewHeight * 0.36));
+    const usableW = viewWidth - archer.x;
+
+    let xPositions = [];
+    if (count === 2) {
+      xPositions = [
+        archer.x + usableW * 0.38,
+        archer.x + usableW * 0.78
+      ];
+    } else {
+      xPositions = [
+        archer.x + usableW * 0.28,
+        archer.x + usableW * 0.58,
+        archer.x + usableW * 0.86
+      ];
+    }
+
+    gameState.targetPositions.forEach((target, i) => {
+      if (xPositions[i]) {
+        target.baseX = xPositions[i];
+        target.baseY = targetY;
+        target.radius = Math.max(42, Math.min(54, viewHeight * 0.085));
+      }
     });
   }
 
@@ -788,22 +809,20 @@
     gameState.shotsFired++;
     gameState.arrowsRemainingInRound--;
     archer.recoil = 16;
-    archer.bowDraw = 0;
     audio.playArrowRelease();
     updateHUD();
 
-    // Physics parameters for arrow flight
     const rad = archer.aimAngle * (Math.PI / 180);
-    const launchSpeed = 26;
+    const launchSpeed = Math.max(22, Math.min(28, viewWidth * 0.024));
     const vx = Math.cos(rad) * launchSpeed;
     const vy = -Math.sin(rad) * launchSpeed;
 
     arrow = {
-      x: archer.x + Math.cos(rad) * 60,
-      y: archer.y - Math.sin(rad) * 60,
+      x: archer.x + Math.cos(rad) * 55,
+      y: archer.y - Math.sin(rad) * 55,
       vx: vx,
       vy: vy,
-      gravity: 0.36,
+      gravity: 0.34,
       rotation: -rad,
       trail: [],
       active: true
@@ -813,19 +832,16 @@
   function updateArrow() {
     if (!arrow || !arrow.active) return;
 
-    // Save visual trail
     arrow.trail.push({ x: arrow.x, y: arrow.y, alpha: 0.9 });
     if (arrow.trail.length > 12) arrow.trail.shift();
 
-    // Ballistic physics + wind drift
     arrow.x += arrow.vx;
     arrow.y += arrow.vy;
-    arrow.vx += gameState.windValue * 0.04;
+    arrow.vx += gameState.windValue * 0.035;
     arrow.vy += arrow.gravity;
     arrow.rotation = Math.atan2(arrow.vy, arrow.vx);
 
-    // Particle flight trail
-    if (Math.random() < 0.7) {
+    if (Math.random() < 0.6) {
       gameState.particles.push({
         x: arrow.x,
         y: arrow.y,
@@ -838,14 +854,14 @@
       });
     }
 
-    // Target collision check
+    // Check target hit
     let collidedTarget = null;
     for (const target of gameState.targetPositions) {
       const dx = arrow.x - target.x;
       const dy = arrow.y - target.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
 
-      if (dist < target.radius + 20) {
+      if (dist < target.radius + 18) {
         collidedTarget = target;
         break;
       }
@@ -856,15 +872,15 @@
       return;
     }
 
-    // Arrow missed all targets and hit ground / went off-screen
-    if (arrow.y > V_HEIGHT - 40 || arrow.x > V_WIDTH + 60) {
+    // Missed
+    if (arrow.y > viewHeight - 20 || arrow.x > viewWidth + 40) {
       handleArrowMiss();
     }
   }
 
   function handleTargetCollision(target) {
     arrow.active = false;
-    target.hitReaction = 18;
+    target.hitReaction = 16;
     target.stuckArrows.push({
       relX: arrow.x - target.x,
       relY: arrow.y - target.y,
@@ -872,7 +888,6 @@
     });
 
     if (target.isCorrect) {
-      // SUCCESS: Correct angle hit!
       gameState.shotsHit++;
       audio.playTargetHit(true);
 
@@ -892,7 +907,7 @@
 
       spawnHitSparks(target.x, target.y, true);
       showFeedback(true, `TARGET HIT! +${pointsEarned}`, `STREAK ${gameState.streak}x`);
-      spawnFloatingText(`+${pointsEarned}`, target.x, target.y - 50, '#fbbf24');
+      spawnFloatingText(`+${pointsEarned}`, target.x, target.y - 45, '#fbbf24');
 
       updateHUD();
 
@@ -900,15 +915,14 @@
         loadRound(gameState.roundIndex + 1);
       }, 1000);
     } else {
-      // WRONG TARGET HIT!
       audio.playTargetHit(false);
       gameState.lives--;
       gameState.streak = 1;
-      gameState.screenShake = 14;
+      gameState.screenShake = 12;
 
       spawnHitSparks(target.x, target.y, false);
       showFeedback(false, "WRONG ANGLE!", "-1 LIFE");
-      spawnFloatingText("-1 LIFE", target.x, target.y - 50, '#ef4444');
+      spawnFloatingText("-1 LIFE", target.x, target.y - 45, '#ef4444');
 
       updateHUD();
 
@@ -929,13 +943,11 @@
     arrow = null;
     gameState.isShooting = false;
     audio.playTone(90, 'triangle', 0.15, 0.25, 0.01);
-    spawnFloatingText("MISSED!", archer.x + 140, archer.y - 140, '#94a3b8');
+    spawnFloatingText("MISSED!", archer.x + 100, archer.y - 100, '#94a3b8');
 
-    // If player has attempts remaining, allow re-shoot
     if (gameState.arrowsRemainingInRound > 0) {
       showFeedback(false, "MISSED SHOT!", `${gameState.arrowsRemainingInRound} ARROW LEFT — TRY AGAIN!`);
     } else {
-      // Both shots missed in this round: deduct life
       gameState.lives--;
       gameState.streak = 1;
       gameState.screenShake = 10;
@@ -954,22 +966,22 @@
   }
 
   function spawnHitSparks(x, y, isCorrect) {
-    const count = isCorrect ? 28 : 14;
+    const count = isCorrect ? 24 : 12;
     const colors = isCorrect 
       ? ['#fbbf24', '#f59e0b', '#34d399', '#38bdf8', '#ffffff'] 
-      : ['#ef4444', '#b91c1c', '#78716c', '#44403c'];
+      : ['#ef4444', '#b91c1c', '#78716c'];
 
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const speed = 2 + Math.random() * 7;
+      const speed = 2 + Math.random() * 6;
       gameState.particles.push({
         x: x,
         y: y,
         vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - 1.8,
+        vy: Math.sin(angle) * speed - 1.5,
         life: 1.0,
-        decay: 0.025 + Math.random() * 0.03,
-        size: 3.5 + Math.random() * 4,
+        decay: 0.03 + Math.random() * 0.03,
+        size: 3.5 + Math.random() * 3.5,
         color: colors[Math.floor(Math.random() * colors.length)]
       });
     }
@@ -980,7 +992,7 @@
       text: text,
       x: x,
       y: y,
-      vy: -1.4,
+      vy: -1.3,
       alpha: 1.0,
       color: color
     });
@@ -1001,6 +1013,7 @@
   function updateHUD() {
     dom.scoreDisplay.textContent = String(gameState.score).padStart(6, '0');
     dom.streakDisplay.textContent = `${gameState.streak}x`;
+    dom.aimDisplay.textContent = `${Math.round(archer.aimAngle)}°`;
 
     dom.heart1.className = `arcade-heart ${gameState.lives >= 1 ? 'heart-full' : 'heart-lost'}`;
     dom.heart2.className = `arcade-heart ${gameState.lives >= 2 ? 'heart-full' : 'heart-lost'}`;
@@ -1050,7 +1063,6 @@
     document.getElementById('victory-streak').textContent = `${gameState.maxStreak}x`;
     document.getElementById('victory-accuracy').textContent = `${accuracy}%`;
 
-    // Calculate stars: 3 stars for >2500 pts, 2 stars for >1500 pts, 1 star otherwise
     const starCount = gameState.score >= 2500 ? 3 : (gameState.score >= 1500 ? 2 : 1);
     for (let i = 1; i <= 3; i++) {
       const starEl = document.getElementById(`v-star-${i}`);
@@ -1059,8 +1071,8 @@
 
     dom.victoryModal.classList.remove('hidden');
 
-    for (let i = 0; i < 90; i++) {
-      spawnHitSparks(V_WIDTH * Math.random(), V_HEIGHT * 0.4, true);
+    for (let i = 0; i < 80; i++) {
+      spawnHitSparks(viewWidth * Math.random(), viewHeight * 0.4, true);
     }
 
     if (window.game && typeof window.game.end === 'function') {
@@ -1074,20 +1086,18 @@
   }
 
   // ==========================================================================
-  // 6. RENDERING ENGINE (CANVAS ARCHERY ARENA)
+  // 6. RENDERING ENGINE (FULLSCREEN RESPONSIVE ARCHERY ARENA)
   // ==========================================================================
   function render() {
     if (!ctx) return;
     gameState.gameTime += 0.02;
 
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     ctx.save();
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, viewWidth, viewHeight);
 
-    // Apply Responsive Letterbox Transform
-    ctx.translate(canvasOffsetX, canvasOffsetY);
-    ctx.scale(canvasScale, canvasScale);
-
-    // Screen Shake effect
+    // Screen Shake effect on miss
     if (gameState.screenShake > 0) {
       const sx = (Math.random() - 0.5) * gameState.screenShake;
       const sy = (Math.random() - 0.5) * gameState.screenShake;
@@ -1096,21 +1106,21 @@
       if (gameState.screenShake < 0.5) gameState.screenShake = 0;
     }
 
-    // 1. Draw Outdoor Archery Arena Scenery
-    drawEnvironment(ctx);
+    // 1. Draw Fullscreen Outdoor Arena Environment
+    drawEnvironment(ctx, viewWidth, viewHeight);
 
-    // 2. Draw Ambient Floating Clouds & Grass Leaves
-    drawAmbientScenery(ctx);
+    // 2. Draw Floating Scenery (Clouds & Ambient Leaves)
+    drawAmbientScenery(ctx, viewWidth, viewHeight);
 
-    // 3. Update & Draw Target Stands with Physical Movement & Angle Arc Displays
+    // 3. Draw Archery Targets & Angle Measurement Stands
     drawTargets(ctx);
 
-    // 4. Draw Ballistic Trajectory Guide Line
+    // 4. Draw Trajectory Guide Line (Clean, without floating badge)
     if (gameState.screen === 'PLAYING' && !gameState.isShooting) {
       drawTrajectoryGuide(ctx);
     }
 
-    // 5. Draw Prominent Animated Archer Character & Bow
+    // 5. Draw Clean Animated Archer Character & Bow
     drawArcher(ctx);
 
     // 6. Draw Arrow & Flight Trail
@@ -1119,161 +1129,159 @@
     // 7. Draw Active Particle Bursts
     drawParticles(ctx);
 
-    // 8. Draw Floating Score & Impact Texts
+    // 8. Draw Floating Impact / Score Texts
     drawFloatingTexts(ctx);
 
     ctx.restore();
   }
 
-  function drawEnvironment(ctx) {
-    // Vibrant Blue Horizon Sky Gradient
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, 420);
+  function drawEnvironment(ctx, W, H) {
+    // Sky gradient across full viewport
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, H * 0.6);
     skyGrad.addColorStop(0, '#0284c7');
     skyGrad.addColorStop(0.5, '#38bdf8');
     skyGrad.addColorStop(1, '#bae6fd');
     ctx.fillStyle = skyGrad;
-    ctx.fillRect(0, 0, V_WIDTH, 420);
+    ctx.fillRect(0, 0, W, H * 0.6);
 
-    // Sun flare in corner
+    // Sun flare
     ctx.fillStyle = 'rgba(254, 240, 138, 0.4)';
     ctx.beginPath();
-    ctx.arc(140, 90, 70, 0, Math.PI * 2);
+    ctx.arc(W * 0.1, 70, 60, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = 'rgba(254, 240, 138, 0.8)';
     ctx.beginPath();
-    ctx.arc(140, 90, 36, 0, Math.PI * 2);
+    ctx.arc(W * 0.1, 70, 30, 0, Math.PI * 2);
     ctx.fill();
 
-    // Distant Rolling Mountain Hills
+    // Distant Castle Hills
     ctx.fillStyle = '#6ee7b7';
     ctx.beginPath();
-    ctx.ellipse(300, 380, 500, 140, 0, 0, Math.PI * 2);
+    ctx.ellipse(W * 0.25, H * 0.55, W * 0.4, H * 0.2, 0, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = '#34d399';
     ctx.beginPath();
-    ctx.ellipse(980, 370, 550, 150, 0, 0, Math.PI * 2);
+    ctx.ellipse(W * 0.8, H * 0.52, W * 0.45, H * 0.22, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Distant Medieval Castles on hills
-    drawCastle(ctx, 220, 200);
-    drawCastle(ctx, 1100, 210);
+    // Distant Castles
+    drawCastle(ctx, Math.max(80, W * 0.18), H * 0.26);
+    drawCastle(ctx, Math.min(W - 80, W * 0.88), H * 0.28);
 
-    // Manicured Tournament Archery Lawn
-    const grassGrad = ctx.createLinearGradient(0, 340, 0, V_HEIGHT);
+    // Grass lawn occupying lower field
+    const grassGrad = ctx.createLinearGradient(0, H * 0.48, 0, H);
     grassGrad.addColorStop(0, '#15803d');
     grassGrad.addColorStop(0.3, '#16a34a');
     grassGrad.addColorStop(1, '#14532d');
     ctx.fillStyle = grassGrad;
-    ctx.fillRect(0, 340, V_WIDTH, V_HEIGHT - 340);
+    ctx.fillRect(0, H * 0.48, W, H * 0.52);
 
-    // Shooting Lane Distance Stripes
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
-    ctx.lineWidth = 3;
+    // Tournament distance stripes
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+    ctx.lineWidth = 2.5;
     ctx.setLineDash([12, 10]);
-    for (let y = 420; y < V_HEIGHT; y += 65) {
+    for (let y = H * 0.6; y < H; y += 60) {
       ctx.beginPath();
       ctx.moveTo(0, y);
-      ctx.lineTo(V_WIDTH, y);
+      ctx.lineTo(W, y);
       ctx.stroke();
     }
     ctx.setLineDash([]);
 
     // Wooden Perimeter Arena Fence
     ctx.fillStyle = '#78350f';
-    for (let x = 15; x < V_WIDTH; x += 45) {
-      ctx.fillRect(x, 328, 8, 24);
+    for (let x = 10; x < W; x += 40) {
+      ctx.fillRect(x, H * 0.46, 7, 22);
     }
-    ctx.fillRect(0, 334, V_WIDTH, 5);
+    ctx.fillRect(0, H * 0.47, W, 4);
 
-    // Tournament Flags
-    drawBannerFlag(ctx, 80, 290, '#ef4444');
-    drawBannerFlag(ctx, 1200, 290, '#3b82f6');
+    // Tournament Flags at boundaries
+    drawBannerFlag(ctx, 40, H * 0.42, '#ef4444');
+    drawBannerFlag(ctx, W - 40, H * 0.42, '#3b82f6');
   }
 
   function drawCastle(ctx, x, y) {
     ctx.fillStyle = '#64748b';
-    ctx.fillRect(x - 30, y, 60, 75);
-    ctx.fillRect(x - 35, y - 12, 15, 12);
-    ctx.fillRect(x - 8, y - 12, 16, 12);
-    ctx.fillRect(x + 20, y - 12, 15, 12);
+    ctx.fillRect(x - 25, y, 50, 60);
+    ctx.fillRect(x - 28, y - 10, 12, 10);
+    ctx.fillRect(x - 6, y - 10, 12, 10);
+    ctx.fillRect(x + 16, y - 10, 12, 10);
 
     ctx.fillStyle = '#475569';
     ctx.beginPath();
-    ctx.moveTo(x - 24, y - 12);
-    ctx.lineTo(x, y - 44);
-    ctx.lineTo(x + 24, y - 12);
+    ctx.moveTo(x - 20, y - 10);
+    ctx.lineTo(x, y - 35);
+    ctx.lineTo(x + 20, y - 10);
     ctx.closePath();
     ctx.fill();
 
     ctx.strokeStyle = '#334155';
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(x, y - 44);
-    ctx.lineTo(x, y - 62);
+    ctx.moveTo(x, y - 35);
+    ctx.lineTo(x, y - 50);
     ctx.stroke();
 
     ctx.fillStyle = '#fbbf24';
     ctx.beginPath();
-    ctx.moveTo(x, y - 62);
-    ctx.lineTo(x + 20, y - 54);
-    ctx.lineTo(x, y - 46);
+    ctx.moveTo(x, y - 50);
+    ctx.lineTo(x + 16, y - 44);
+    ctx.lineTo(x, y - 38);
     ctx.closePath();
     ctx.fill();
   }
 
   function drawBannerFlag(ctx, x, y, color) {
     ctx.strokeStyle = '#451a03';
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 3.5;
     ctx.beginPath();
-    ctx.moveTo(x, y + 50);
-    ctx.lineTo(x, y - 25);
+    ctx.moveTo(x, y + 45);
+    ctx.lineTo(x, y - 20);
     ctx.stroke();
 
     ctx.fillStyle = color;
     ctx.beginPath();
-    ctx.moveTo(x, y - 25);
-    ctx.lineTo(x + 30, y - 12);
+    ctx.moveTo(x, y - 20);
+    ctx.lineTo(x + 25, y - 10);
     ctx.lineTo(x, y);
     ctx.closePath();
     ctx.fill();
   }
 
-  function drawAmbientScenery(ctx) {
-    // Drifting Fluffy Clouds
+  function drawAmbientScenery(ctx, W, H) {
     ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
     gameState.ambientClouds.forEach(c => {
       c.x += c.speed;
-      if (c.x > V_WIDTH + 100) c.x = -120;
+      if (c.x > W + 80) c.x = -100;
 
       ctx.save();
       ctx.translate(c.x, c.y);
       ctx.scale(c.scale, c.scale);
       ctx.beginPath();
-      ctx.arc(0, 0, 24, 0, Math.PI * 2);
-      ctx.arc(22, -10, 20, 0, Math.PI * 2);
-      ctx.arc(44, 0, 22, 0, Math.PI * 2);
-      ctx.arc(22, 10, 18, 0, Math.PI * 2);
+      ctx.arc(0, 0, 22, 0, Math.PI * 2);
+      ctx.arc(20, -9, 18, 0, Math.PI * 2);
+      ctx.arc(40, 0, 20, 0, Math.PI * 2);
+      ctx.arc(20, 9, 16, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     });
 
-    // Ambient floating leaves affected by wind
     gameState.ambientLeaves.forEach(leaf => {
-      leaf.x += leaf.vx + (gameState.windValue * 0.4);
+      leaf.x += leaf.vx + (gameState.windValue * 0.35);
       leaf.y += leaf.vy;
       leaf.rot += leaf.rotSpeed;
 
-      if (leaf.x > V_WIDTH + 20) leaf.x = -20;
-      if (leaf.x < -20) leaf.x = V_WIDTH + 20;
-      if (leaf.y > V_HEIGHT + 20) leaf.y = 120;
+      if (leaf.x > W + 20) leaf.x = -20;
+      if (leaf.x < -20) leaf.x = W + 20;
+      if (leaf.y > H + 20) leaf.y = 100;
 
       ctx.save();
       ctx.translate(leaf.x, leaf.y);
       ctx.rotate(leaf.rot);
       ctx.fillStyle = leaf.color;
       ctx.beginPath();
-      ctx.ellipse(0, 0, leaf.size * 1.6, leaf.size * 0.8, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 0, leaf.size * 1.5, leaf.size * 0.75, 0, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     });
@@ -1281,100 +1289,92 @@
 
   function drawTargets(ctx) {
     gameState.targetPositions.forEach(target => {
-      // Physical Movement Logic based on Round Configuration
       if (target.movement === 'gentle_sway') {
-        target.x = target.baseX + Math.sin(gameState.gameTime * 1.6 + target.swayOffset) * 24;
+        target.x = target.baseX + Math.sin(gameState.gameTime * 1.6 + target.swayOffset) * 20;
       } else if (target.movement === 'moderate_sway') {
-        target.x = target.baseX + Math.sin(gameState.gameTime * 2.2 + target.swayOffset) * 45;
+        target.x = target.baseX + Math.sin(gameState.gameTime * 2.2 + target.swayOffset) * 38;
       } else if (target.movement === 'active_sway') {
-        target.x = target.baseX + Math.sin(gameState.gameTime * 2.8 + target.swayOffset) * 65;
-        target.y = target.baseY + Math.cos(gameState.gameTime * 1.5 + target.swayOffset) * 12;
+        target.x = target.baseX + Math.sin(gameState.gameTime * 2.8 + target.swayOffset) * 55;
+        target.y = target.baseY + Math.cos(gameState.gameTime * 1.5 + target.swayOffset) * 10;
       }
 
       ctx.save();
       ctx.translate(target.x, target.y);
 
-      // Hit recoil animation
       if (target.hitReaction > 0) {
-        const shake = Math.sin(target.hitReaction * 2) * (target.hitReaction * 0.6);
+        const shake = Math.sin(target.hitReaction * 2) * (target.hitReaction * 0.55);
         ctx.translate(shake, 0);
         target.hitReaction--;
       }
 
-      // 1. Target Shadow on Grass
+      // Shadow on grass
       ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
       ctx.beginPath();
-      ctx.ellipse(0, 110, target.radius * 0.9, 14, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 95, target.radius * 0.85, 12, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // 2. Wooden Easel Stand
+      // Wooden Easel Stand
       ctx.fillStyle = '#78350f';
-      ctx.fillRect(-28, 15, 10, 95);
-      ctx.fillRect(18, 15, 10, 95);
-      ctx.fillRect(-34, 70, 68, 8);
+      ctx.fillRect(-24, 15, 8, 85);
+      ctx.fillRect(16, 15, 8, 85);
+      ctx.fillRect(-30, 60, 60, 7);
 
-      // 3. Archery Circular Target Rings
-      // Wooden Backboard Disc
+      // Circular Archery Target Disc
       ctx.fillStyle = '#451a03';
       ctx.beginPath();
-      ctx.arc(0, 0, target.radius + 5, 0, Math.PI * 2);
+      ctx.arc(0, 0, target.radius + 4, 0, Math.PI * 2);
       ctx.fill();
 
-      // Outer White Ring
       ctx.fillStyle = '#f8fafc';
       ctx.beginPath();
       ctx.arc(0, 0, target.radius, 0, Math.PI * 2);
       ctx.fill();
 
-      // Black Ring
       ctx.fillStyle = '#1e293b';
       ctx.beginPath();
       ctx.arc(0, 0, target.radius * 0.8, 0, Math.PI * 2);
       ctx.fill();
 
-      // Blue Ring
       ctx.fillStyle = '#0284c7';
       ctx.beginPath();
       ctx.arc(0, 0, target.radius * 0.6, 0, Math.PI * 2);
       ctx.fill();
 
-      // Red Ring
       ctx.fillStyle = '#ef4444';
       ctx.beginPath();
       ctx.arc(0, 0, target.radius * 0.4, 0, Math.PI * 2);
       ctx.fill();
 
-      // Bullseye Gold Center
       ctx.fillStyle = '#fbbf24';
       ctx.beginPath();
       ctx.arc(0, 0, target.radius * 0.2, 0, Math.PI * 2);
       ctx.fill();
 
-      // Target Label Badge (A, B, or C)
+      // Target Label
       ctx.fillStyle = '#ffffff';
-      ctx.font = `900 16px var(--font-display)`;
+      ctx.font = `900 15px var(--font-display)`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(target.label, 0, 0);
 
-      // 4. Render Embedded Stuck Arrows
+      // Embedded stuck arrows
       target.stuckArrows.forEach(stuck => {
         ctx.save();
         ctx.translate(stuck.relX, stuck.relY);
         ctx.rotate(stuck.rotation);
         ctx.strokeStyle = '#d97706';
-        ctx.lineWidth = 3.5;
+        ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        ctx.lineTo(-28, 0);
+        ctx.lineTo(-24, 0);
         ctx.stroke();
         ctx.fillStyle = '#ef4444';
-        ctx.fillRect(-28, -4, 8, 8);
+        ctx.fillRect(-24, -3, 6, 6);
         ctx.restore();
       });
 
-      // 5. High-Contrast Angle Display Signboard Mounted Above
-      drawAngleDisplaySign(ctx, 0, -105, target.angleDeg);
+      // Target's Angle Display Placard Mounted Directly Above Target
+      drawAngleDisplaySign(ctx, 0, -90, target.angleDeg);
 
       ctx.restore();
     });
@@ -1384,50 +1384,50 @@
     ctx.save();
     ctx.translate(x, y);
 
-    const signW = 120;
-    const signH = 92;
+    const signW = 108;
+    const signH = 82;
 
-    // Wooden post connecting sign to target
+    // Wooden mount rod
     ctx.fillStyle = '#78350f';
-    ctx.fillRect(-5, 35, 10, 24);
+    ctx.fillRect(-4, 30, 8, 20);
 
-    // Signboard Frame
+    // Placard background
     ctx.fillStyle = '#0f172a';
     ctx.strokeStyle = '#fbbf24';
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
-    ctx.roundRect(-signW / 2, -signH / 2, signW, signH, 12);
+    ctx.roundRect(-signW / 2, -signH / 2, signW, signH, 10);
     ctx.fill();
     ctx.stroke();
 
-    // Degree Header Banner
+    // Degree Header Pill
     ctx.fillStyle = '#1e293b';
     ctx.beginPath();
-    ctx.roundRect(-signW / 2 + 8, -signH / 2 + 6, signW - 16, 22, 6);
+    ctx.roundRect(-signW / 2 + 6, -signH / 2 + 5, signW - 12, 19, 5);
     ctx.fill();
 
     ctx.fillStyle = '#fde047';
-    ctx.font = `900 16px var(--font-display)`;
+    ctx.font = `900 14px var(--font-display)`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(`${angleDeg}°`, 0, -signH / 2 + 17);
+    ctx.fillText(`${angleDeg}°`, 0, -signH / 2 + 15);
 
     // --- ACCURATE GEOMETRIC ANGLE VISUALIZATION ---
-    const vx = -26;
-    const vy = 26;
-    const rayLength = 48;
-    const arcRadius = 22;
+    const vx = -22;
+    const vy = 22;
+    const rayLength = 42;
+    const arcRadius = 19;
 
-    // Ray 1: Baseline (Horizontal)
+    // Baseline Ray (Horizontal)
     ctx.strokeStyle = '#f8fafc';
-    ctx.lineWidth = 3.5;
+    ctx.lineWidth = 3;
     ctx.lineCap = 'round';
     ctx.beginPath();
     ctx.moveTo(vx, vy);
     ctx.lineTo(vx + rayLength, vy);
     ctx.stroke();
 
-    // Ray 2: Angled ray (rotated accurately by angleDeg)
+    // Angled Ray (Rotated accurately by angleDeg)
     const rad = angleDeg * (Math.PI / 180);
     const r2x = vx + Math.cos(rad) * rayLength;
     const r2y = vy - Math.sin(rad) * rayLength;
@@ -1437,10 +1437,10 @@
     ctx.lineTo(r2x, r2y);
     ctx.stroke();
 
-    // Colored Angle Arc Sector
+    // Angle Arc Sector
     ctx.fillStyle = 'rgba(56, 189, 248, 0.35)';
     ctx.strokeStyle = '#38bdf8';
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(vx, vy);
     ctx.arc(vx, vy, arcRadius, 0, -rad, true);
@@ -1451,7 +1451,7 @@
     // Vertex Marker Dot
     ctx.fillStyle = '#f59e0b';
     ctx.beginPath();
-    ctx.arc(vx, vy, 5, 0, Math.PI * 2);
+    ctx.arc(vx, vy, 4.5, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.restore();
@@ -1462,58 +1462,42 @@
     ctx.translate(archer.x, archer.y);
 
     const rad = archer.aimAngle * (Math.PI / 180);
-    const speed = 26;
-    let simX = Math.cos(rad) * 60;
-    let simY = -Math.sin(rad) * 60;
-    let simVx = Math.cos(rad) * speed;
-    let simVy = -Math.sin(rad) * speed;
-    const gravity = 0.36;
+    const launchSpeed = Math.max(22, Math.min(28, viewWidth * 0.024));
+    let simX = Math.cos(rad) * 55;
+    let simY = -Math.sin(rad) * 55;
+    let simVx = Math.cos(rad) * launchSpeed;
+    let simVy = -Math.sin(rad) * launchSpeed;
+    const gravity = 0.34;
 
     ctx.fillStyle = 'rgba(56, 189, 248, 0.75)';
-    ctx.beginPath();
 
-    // Draw predicted dotted ballistic parabola arc
-    for (let step = 0; step < 26; step++) {
+    // Subtle dotted trajectory guide (clean, without floating badge)
+    for (let step = 0; step < 24; step++) {
       simX += simVx;
       simY += simVy;
-      simVx += gameState.windValue * 0.04;
+      simVx += gameState.windValue * 0.035;
       simVy += gravity;
 
       if (step % 2 === 0) {
         ctx.beginPath();
-        ctx.arc(simX, simY, 3.5, 0, Math.PI * 2);
+        ctx.arc(simX, simY, 3, 0, Math.PI * 2);
         ctx.fill();
       }
     }
-
-    // Aim Angle badge floating near bow tip
-    const badgeDist = 95;
-    const bx = Math.cos(rad) * badgeDist;
-    const by = -Math.sin(rad) * badgeDist - 16;
-
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
-    ctx.strokeStyle = '#38bdf8';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.roundRect(bx - 26, by - 12, 52, 24, 8);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font = `900 13px var(--font-display)`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(`${Math.round(archer.aimAngle)}°`, bx, by);
 
     ctx.restore();
   }
 
   function drawArcher(ctx) {
+    // Smooth angle interpolation
     archer.aimAngle += (archer.targetAimAngle - archer.aimAngle) * 0.22;
     archer.idleTimer += 0.05;
     if (archer.recoil > 0) archer.recoil *= 0.8;
 
-    const bobY = Math.sin(archer.idleTimer) * 3;
+    // Live update HUD with aim angle
+    updateAimUI();
+
+    const bobY = Math.sin(archer.idleTimer) * 2.5;
 
     ctx.save();
     ctx.translate(archer.x, archer.y + bobY);
@@ -1523,117 +1507,109 @@
     ctx.fillStyle = '#78350f';
     ctx.save();
     ctx.rotate(-0.35);
-    ctx.fillRect(-26, -45, 14, 40);
-    // Arrow fletchings sticking out
+    ctx.fillRect(-24, -40, 13, 36);
     ctx.fillStyle = '#ef4444';
-    ctx.fillRect(-28, -54, 5, 10);
-    ctx.fillRect(-20, -56, 5, 12);
+    ctx.fillRect(-26, -48, 4, 9);
+    ctx.fillRect(-18, -50, 4, 11);
     ctx.restore();
 
     // 2. Archer Body (Tunic & Belt)
-    ctx.fillStyle = '#15803d'; // Green tournament tunic
+    ctx.fillStyle = '#15803d';
     ctx.beginPath();
-    ctx.roundRect(-20, -40, 40, 48, 8);
+    ctx.roundRect(-18, -36, 36, 44, 7);
     ctx.fill();
 
-    // Gold trim & belt
     ctx.fillStyle = '#b45309';
-    ctx.fillRect(-20, -14, 40, 7);
+    ctx.fillRect(-18, -13, 36, 6);
     ctx.fillStyle = '#fbbf24';
-    ctx.fillRect(-7, -15, 14, 9);
+    ctx.fillRect(-6, -14, 12, 8);
 
-    // 3. Archer Head & Feathered Tournament Cap
-    // Head / Face
+    // 3. Archer Head & Feathered Cap
     ctx.fillStyle = '#fde68a';
     ctx.beginPath();
-    ctx.arc(0, -56, 17, 0, Math.PI * 2);
+    ctx.arc(0, -50, 15, 0, Math.PI * 2);
     ctx.fill();
 
-    // Eyes
     ctx.fillStyle = '#0f172a';
     ctx.beginPath();
-    ctx.arc(8, -58, 3, 0, Math.PI * 2);
+    ctx.arc(7, -52, 2.5, 0, Math.PI * 2);
     ctx.fill();
 
-    // Smile
     ctx.strokeStyle = '#78350f';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.arc(7, -52, 5, 0, Math.PI * 0.8);
+    ctx.arc(6, -46, 4.5, 0, Math.PI * 0.8);
     ctx.stroke();
 
-    // Robin Hood Tournament Cap
+    // Robin Hood Cap
     ctx.fillStyle = '#166534';
     ctx.beginPath();
-    ctx.moveTo(-20, -64);
-    ctx.lineTo(18, -64);
-    ctx.lineTo(24, -74);
-    ctx.lineTo(-10, -78);
+    ctx.moveTo(-18, -58);
+    ctx.lineTo(16, -58);
+    ctx.lineTo(21, -67);
+    ctx.lineTo(-9, -71);
     ctx.closePath();
     ctx.fill();
 
     // Red Feather
     ctx.fillStyle = '#ef4444';
     ctx.beginPath();
-    ctx.moveTo(-8, -76);
-    ctx.lineTo(-18, -96);
-    ctx.lineTo(-4, -86);
+    ctx.moveTo(-7, -69);
+    ctx.lineTo(-16, -87);
+    ctx.lineTo(-3, -78);
     ctx.closePath();
     ctx.fill();
 
     // 4. Dynamic Rotating Bow & Arm
     const rad = archer.aimAngle * (Math.PI / 180);
     ctx.save();
-    ctx.translate(8 - archer.recoil, -28);
+    ctx.translate(7 - archer.recoil, -26);
     ctx.rotate(-rad);
 
-    // Left Arm holding bow
     ctx.fillStyle = '#fde68a';
-    ctx.fillRect(0, -5, 32, 10);
+    ctx.fillRect(0, -4.5, 28, 9);
 
-    // Wooden Bow Curve
+    // Wooden Bow curve
     ctx.strokeStyle = '#78350f';
-    ctx.lineWidth = 5;
+    ctx.lineWidth = 4.5;
     ctx.beginPath();
-    ctx.arc(34, 0, 40, -Math.PI * 0.45, Math.PI * 0.45);
+    ctx.arc(30, 0, 36, -Math.PI * 0.45, Math.PI * 0.45);
     ctx.stroke();
 
-    // Bowstring & Taut Pull Mechanics
+    // Bowstring
     ctx.strokeStyle = '#f8fafc';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
-    const topY = -Math.sin(Math.PI * 0.45) * 40;
-    const botY = Math.sin(Math.PI * 0.45) * 40;
-    const topX = 34 + Math.cos(Math.PI * 0.45) * 40;
-    const botX = 34 + Math.cos(Math.PI * 0.45) * 40;
+    const topY = -Math.sin(Math.PI * 0.45) * 36;
+    const botY = Math.sin(Math.PI * 0.45) * 36;
+    const topX = 30 + Math.cos(Math.PI * 0.45) * 36;
+    const botX = 30 + Math.cos(Math.PI * 0.45) * 36;
 
-    const pullX = gameState.isShooting ? topX : (topX - 18);
+    const pullX = gameState.isShooting ? topX : (topX - 16);
     ctx.moveTo(topX, topY);
     ctx.lineTo(pullX, 0);
     ctx.lineTo(botX, botY);
     ctx.stroke();
 
-    // Nocked Arrow ready to loose
+    // Nocked Arrow
     if (!gameState.isShooting && gameState.arrowsRemainingInRound > 0) {
       ctx.strokeStyle = '#d97706';
-      ctx.lineWidth = 4;
+      ctx.lineWidth = 3.5;
       ctx.beginPath();
       ctx.moveTo(pullX, 0);
-      ctx.lineTo(topX + 24, 0);
+      ctx.lineTo(topX + 20, 0);
       ctx.stroke();
 
-      // Arrowhead
       ctx.fillStyle = '#94a3b8';
       ctx.beginPath();
-      ctx.moveTo(topX + 24, -5);
-      ctx.lineTo(topX + 34, 0);
-      ctx.lineTo(topX + 24, 5);
+      ctx.moveTo(topX + 20, -4.5);
+      ctx.lineTo(topX + 29, 0);
+      ctx.lineTo(topX + 20, 4.5);
       ctx.closePath();
       ctx.fill();
 
-      // Arrow feathers
       ctx.fillStyle = '#ef4444';
-      ctx.fillRect(pullX, -4, 8, 8);
+      ctx.fillRect(pullX, -3.5, 7, 7);
     }
 
     ctx.restore();
@@ -1644,11 +1620,10 @@
   function drawArrow(ctx) {
     if (!arrow || !arrow.active) return;
 
-    // Draw fading trajectory trail
     arrow.trail.forEach(t => {
       ctx.fillStyle = `rgba(251, 191, 36, ${t.alpha})`;
       ctx.beginPath();
-      ctx.arc(t.x, t.y, 3, 0, Math.PI * 2);
+      ctx.arc(t.x, t.y, 2.5, 0, Math.PI * 2);
       ctx.fill();
       t.alpha -= 0.08;
     });
@@ -1657,26 +1632,23 @@
     ctx.translate(arrow.x, arrow.y);
     ctx.rotate(arrow.rotation);
 
-    // Arrow shaft
     ctx.strokeStyle = '#d97706';
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 3.5;
     ctx.beginPath();
-    ctx.moveTo(-24, 0);
-    ctx.lineTo(14, 0);
+    ctx.moveTo(-22, 0);
+    ctx.lineTo(12, 0);
     ctx.stroke();
 
-    // Arrowhead
     ctx.fillStyle = '#f8fafc';
     ctx.beginPath();
-    ctx.moveTo(14, -5);
-    ctx.lineTo(24, 0);
-    ctx.lineTo(14, 5);
+    ctx.moveTo(12, -4.5);
+    ctx.lineTo(21, 0);
+    ctx.lineTo(12, 4.5);
     ctx.closePath();
     ctx.fill();
 
-    // Arrow fletchings
     ctx.fillStyle = '#ef4444';
-    ctx.fillRect(-24, -4, 8, 8);
+    ctx.fillRect(-22, -3.5, 7, 7);
 
     ctx.restore();
   }
@@ -1717,10 +1689,10 @@
       ctx.save();
       ctx.globalAlpha = Math.max(0, ft.alpha);
       ctx.fillStyle = ft.color;
-      ctx.font = `900 22px var(--font-display)`;
+      ctx.font = `900 20px var(--font-display)`;
       ctx.textAlign = 'center';
       ctx.shadowColor = 'rgba(0,0,0,0.85)';
-      ctx.shadowBlur = 5;
+      ctx.shadowBlur = 4;
       ctx.fillText(ft.text, ft.x, ft.y);
       ctx.restore();
     }
@@ -1750,7 +1722,6 @@
     console.log('[Angle Archers] Game Finished Result:', result);
   };
 
-  // Bootstrap when document is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       initDOM();
