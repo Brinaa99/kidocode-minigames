@@ -1,0 +1,21 @@
+{
+  "name": "number-detective",
+  "version": "1.0.0",
+  "description": "Educational retro pixel-art detective mystery game teaching Multiplication Tables, Multiples and Factors for primary school students",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve -l 3002 .",
+    "serve": "npx serve -l 3002 ."
+  },
+  "keywords": [
+    "educational-game",
+    "multiplication",
+    "multiples",
+    "factors",
+    "detective",
+    "mystery",
+    "primary-school"
+  ],
+  "author": "Google Antigravity Team",
+  "license": "MIT"
+}

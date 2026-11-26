@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>FRACTION FORTRESS — Understanding Fractions</title>
+  <meta name="description" content="Rebuild the fantasy fortress by placing equal fractional parts. A real interactive Standard 3 mathematics game.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Cinzel:wght@700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game-container" class="game-container">
+    <!-- Main Game Canvas -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Top HUD Overlay -->
+    <header id="hud" class="hud hidden">
+      <div class="hud-left">
+        <div class="hud-badge logo-badge">
+          <span class="hud-icon">🏰</span>
+          <span class="hud-title">FRACTION FORTRESS</span>
+        </div>
+        <div class="hud-badge round-badge">
+          <span class="hud-label">ROUND</span>
+          <span id="hud-round" class="hud-value">1/10</span>
+        </div>
+      </div>
+
+      <div class="hud-center">
+        <!-- Compact Active Mission Card with Fraction Representation -->
+        <div id="mission-card" class="mission-card">
+          <div class="mission-header">
+            <span class="mission-tag">MISSION:</span>
+            <span id="mission-text" class="mission-text">Repair 1/2 of the Castle Wall</span>
+          </div>
+          <div class="mission-visual-row">
+            <!-- Large mathematical fraction display -->
+            <div class="fraction-badge-display">
+              <span id="fraction-numerator" class="fraction-num">1</span>
+              <span class="fraction-line"></span>
+              <span id="fraction-denominator" class="fraction-den">2</span>
+            </div>
+            <!-- Visual Equal Parts Progress Bar -->
+            <div class="fraction-equal-bar-container">
+              <div class="equal-bar-label" id="equal-bar-title">WHOLE (2 EQUAL PARTS):</div>
+              <div id="equal-parts-slots" class="equal-parts-slots">
+                <!-- Dynamically generated equal segment boxes -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-right">
+        <!-- Inventory / Carried Block Slot -->
+        <div class="hud-badge inventory-badge" id="inventory-slot" title="Carried Building Piece">
+          <span class="hud-label">HELD</span>
+          <div id="held-item-display" class="held-item-empty">
+            <span id="held-item-icon">✋</span>
+            <span id="held-item-name">EMPTY</span>
+          </div>
+        </div>
+
+        <div class="hud-badge score-badge">
+          <span class="hud-label">SCORE</span>
+          <span id="hud-score" class="hud-value">0</span>
+        </div>
+
+        <div class="hud-badge lives-badge">
+          <span class="hud-label">LIVES</span>
+          <div id="hud-lives" class="hud-lives-icons">
+            <span class="life-heart">❤️</span>
+            <span class="life-heart">❤️</span>
+            <span class="life-heart">❤️</span>
+          </div>
+        </div>
+
+        <div class="hud-actions">
+          <button id="btn-sound-toggle" class="hud-btn icon-only" title="Toggle Sound" aria-label="Toggle Sound">
+            <span id="sound-icon" class="btn-icon">🔊</span>
+          </button>
+          <button id="btn-help" class="hud-btn icon-only" title="How to Play" aria-label="Help">
+            <span class="btn-icon">❓</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Floating In-World Interaction Indicator -->
+    <div id="interact-prompt" class="interact-prompt hidden">
+      <div class="prompt-bubble">
+        <span id="prompt-icon" class="prompt-icon">🧱</span>
+        <span id="prompt-text" class="prompt-text">PICK UP STONE BLOCK</span>
+        <span class="prompt-key">[SPACE / TAP]</span>
+      </div>
+    </div>
+
+    <!-- Floating Toast Feedback -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Mobile / Touch Controls -->
+    <div id="touch-controls" class="touch-controls hidden">
+      <div id="joystick-zone" class="joystick-zone">
+        <div id="joystick-base" class="joystick-base">
+          <div id="joystick-stick" class="joystick-stick"></div>
+        </div>
+      </div>
+      <div class="touch-actions">
+        <button id="btn-touch-action" class="touch-action-btn action-primary" aria-label="Interact / Place">
+          <span class="touch-icon">🔨</span>
+          <span id="touch-action-label" class="touch-label">ACTION</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODALS & SCREEN OVERLAYS -->
+    <!-- ======================================================== -->
+
+    <!-- Title / Start Screen -->
+    <div id="screen-title" class="screen-overlay title-screen">
+      <div class="title-backdrop"></div>
+      <div class="title-card">
+        <div class="title-fortress-crest">
+          <div class="crest-shield">
+            <span class="crest-icon">🏰</span>
+            <div class="crest-fraction-mini">
+              <span>3</span>
+              <span class="mini-bar"></span>
+              <span>4</span>
+            </div>
+          </div>
+        </div>
+        <div class="title-badge-tag">KIDOCODE MATHEMATICS • STANDARD 3</div>
+        <h1 class="game-main-title">FRACTION FORTRESS</h1>
+        <p class="game-subtitle">"Build the fortress. Master fractions."</p>
+
+        <div class="title-instructions-preview">
+          <div class="instruction-pill">
+            <span class="pill-icon">📐</span>
+            <span>Every structure is divided into <strong>EQUAL PARTS</strong></span>
+          </div>
+          <div class="instruction-pill">
+            <span class="pill-icon">🧱</span>
+            <span>Place parts to match the <strong>FRACTION SHOWN</strong></span>
+          </div>
+          <div class="instruction-pill">
+            <span class="pill-icon">✨</span>
+            <span>e.g., <strong>3/8</strong> = 3 parts out of 8 equal parts!</span>
+          </div>
+        </div>
+
+        <div class="title-btn-group">
+          <button id="btn-start-game" class="btn-arcade btn-primary pulse-btn">
+            <span class="btn-icon">⚔️</span> START BUILDING
+          </button>
+          <button id="btn-how-to-play" class="btn-arcade btn-secondary">
+            <span class="btn-icon">📖</span> HOW TO PLAY
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- How To Play Modal -->
+    <div id="modal-instructions" class="modal-overlay hidden">
+      <div class="modal-card instructions-card">
+        <div class="modal-header">
+          <h2><span class="header-icon">🛡️</span> BUILDER'S FRACTION HANDBOOK</h2>
+          <button id="btn-close-instructions" class="btn-close-modal" aria-label="Close">✕</button>
+        </div>
+        <div class="instructions-steps">
+          <div class="step-card">
+            <div class="step-number">1</div>
+            <div class="step-icon">📐</div>
+            <div class="step-info">
+              <h3>Understand the Whole</h3>
+              <p>Every structure is ONE whole divided into <strong>equal sections</strong>. The <strong>bottom number (Denominator)</strong> tells you how many equal parts exist in total.</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-number">2</div>
+            <div class="step-icon">🧱</div>
+            <div class="step-info">
+              <h3>Collect Building Pieces</h3>
+              <p>Walk to the material depots (Stone Quarry, Lumber Yard, Garden Depot) and pick up the matching building blocks.</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-number">3</div>
+            <div class="step-icon">🔨</div>
+            <div class="step-info">
+              <h3>Place the Fraction (Numerator)</h3>
+              <p>The <strong>top number (Numerator)</strong> tells you how many parts to place. If the mission is <strong>3/8</strong>, place exactly 3 pieces into the 8 equal slots.</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-number">4</div>
+            <div class="step-icon">🏰</div>
+            <div class="step-info">
+              <h3>Watch the Fortress Rebuild!</h3>
+              <p>When the fraction is complete, the structure activates, locks into place, and you advance to the next castle zone!</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-instructions-gotit" class="btn-arcade btn-primary">
+            <span>READY TO BUILD! 🏰</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Structure Complete / Round Victory Modal -->
+    <div id="modal-round-complete" class="modal-overlay hidden">
+      <div class="modal-card round-complete-card">
+        <div class="round-complete-badge">✨ STRUCTURE RESTORED!</div>
+        <h2 id="round-complete-title" class="round-title">Castle Wall Repaired!</h2>
+        
+        <!-- Large visual fraction celebration box -->
+        <div class="celebration-fraction-box">
+          <span id="celebration-fraction-text" class="celebration-fraction">3/4</span>
+          <span class="celebration-equal-sign">=</span>
+          <div id="celebration-bar-preview" class="celebration-bar"></div>
+        </div>
+
+        <p id="round-complete-desc" class="round-desc">All required equal parts successfully placed and locked into the fortress!</p>
+
+        <div class="round-stats-grid">
+          <div class="stat-box">
+            <span class="stat-label">PARTS PLACED</span>
+            <span id="round-stat-parts" class="stat-val">3</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">ROUND SCORE</span>
+            <span id="round-stat-score" class="stat-val">+150</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">TIME</span>
+            <span id="round-stat-time" class="stat-val">12s</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">PRECISION</span>
+            <span id="round-stat-prec" class="stat-val">100%</span>
+          </div>
+        </div>
+
+        <button id="btn-next-round" class="btn-arcade btn-primary pulse-btn">
+          <span>NEXT FORTRESS MISSION ➡️</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Final Grand Victory Screen -->
+    <div id="screen-game-over" class="screen-overlay game-over-screen hidden">
+      <div class="game-over-card">
+        <div class="certificate-seal">🏆</div>
+        <div class="cert-header-tag">ROYAL ARCHITECT DEGREE</div>
+        <h1 class="game-over-title">FORTRESS RESTORED!</h1>
+        <p class="game-over-subtitle">The entire kingdom is saved thanks to your mastery of equal parts and fractions!</p>
+
+        <div class="stars-row">
+          <span class="star filled">⭐</span>
+          <span class="star filled">⭐</span>
+          <span class="star filled">⭐</span>
+        </div>
+
+        <div class="final-stats-board">
+          <div class="final-stat-item">
+            <span class="final-stat-label">FINAL SCORE</span>
+            <span id="final-score" class="final-stat-val highlight">2,850</span>
+          </div>
+          <div class="final-stat-item">
+            <span class="final-stat-label">STRUCTURES RESTORED</span>
+            <span id="final-structures" class="final-stat-val">10 / 10</span>
+          </div>
+          <div class="final-stat-item">
+            <span class="final-stat-label">FRACTIONS MASTERED</span>
+            <span id="final-fractions-count" class="final-stat-val">10 Types</span>
+          </div>
+          <div class="final-stat-item">
+            <span class="final-stat-label">TOTAL TIME</span>
+            <span id="final-time" class="final-stat-val">3m 45s</span>
+          </div>
+          <div class="final-stat-item">
+            <span class="final-stat-label">ACCURACY RATING</span>
+            <span id="final-accuracy" class="final-stat-val">100%</span>
+          </div>
+          <div class="final-stat-item">
+            <span class="final-stat-label">BUILDER RANK</span>
+            <span id="final-rank" class="final-stat-val rank-badge">MASTER ARCHITECT</span>
+          </div>
+        </div>
+
+        <!-- Master Fortress Showcase Gallery -->
+        <div class="showcase-box">
+          <div class="showcase-title">🏰 COMPLETED FORTRESS BLUEPRINTS</div>
+          <div class="showcase-fractions-pills">
+            <span class="showcase-pill">Wall: 1/2</span>
+            <span class="showcase-pill">Tower: 1/4</span>
+            <span class="showcase-pill">Wall: 3/4</span>
+            <span class="showcase-pill">Garden: 2/3</span>
+            <span class="showcase-pill">Bridge: 3/5</span>
+            <span class="showcase-pill">Battlement: 5/8</span>
+            <span class="showcase-pill">Equiv: 1/2 = 2/4</span>
+            <span class="showcase-pill">Grand Finale: 100%</span>
+          </div>
+        </div>
+
+        <div class="game-over-actions">
+          <button id="btn-play-again" class="btn-arcade btn-primary">
+            <span class="btn-icon">🔄</span> BUILD AGAIN
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+/**
+ * The Number Detective - Pixel UI & Noir Aesthetic
+ * Detective office, cork evidence boards, case files,
+ * brass buttons, and vintage notebook styling.
+ */
+
+:root {
+  --noir-dark: #070b14;
+  --noir-navy: #0f172a;
+  --noir-slate: #1e293b;
+  --wood-desk: #3e2723;
+  --wood-cork: #b45309;
+  --lamp-amber: #f59e0b;
+  --gold-badge: #fbbf24;
+  --evidence-red: #ef4444;
+  --neon-green: #22c55e;
+  --paper-cream: #fef3c7;
+  --font-pixel: 'Press Start 2P', 'Courier New', monospace;
+  --font-mono: 'Share Tech Mono', 'Courier New', monospace;
+}
+
+/* Pixel Box Styling */
+.pixel-box {
+  background: rgba(15, 23, 42, 0.94);
+  border: 4px solid #475569;
+  box-shadow: 
+    0 0 0 2px #000,
+    inset 0 0 0 2px rgba(254, 243, 199, 0.12),
+    0 8px 24px rgba(0, 0, 0, 0.7);
+  position: relative;
+  image-rendering: pixelated;
+}
+
+/* Pixel Buttons */
+.pixel-btn {
+  font-family: var(--font-pixel);
+  font-size: 0.75rem;
+  padding: 10px 16px;
+  background: #0f172a;
+  color: #fff;
+  border: 3px solid #334155;
+  box-shadow: 
+    0 4px 0 #000,
+    0 0 10px rgba(245, 158, 11, 0.2);
+  cursor: pointer;
+  outline: none;
+  transition: all 0.1s ease;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  user-select: none;
+}
+
+.pixel-btn:hover:not(:disabled) {
+  background: #1e293b;
+  border-color: var(--gold-badge);
+  box-shadow: 
+    0 4px 0 #000,
+    0 0 14px var(--gold-badge);
+  transform: translateY(-2px);
+}
+
+.pixel-btn:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #000;
+}
+
+.btn-primary {
+  background: #b45309;
+  border-color: #f59e0b;
+  color: #ffffff;
+}
+
+.btn-confirm {
+  background: #15803d;
+  border-color: #4ade80;
+  color: #ffffff;
+}
+
+.btn-hint {
+  background: #78350f;
+  border-color: #d97706;
+  color: #fef08a;
+}
+
+/* Evidence Option Buttons */
+.evidence-opt-btn {
+  background: #1e293b;
+  border-color: #475569;
+  font-size: 0.85rem;
+  padding: 12px 16px;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.evidence-opt-btn.selected {
+  background: #0284c7;
+  border-color: #38bdf8;
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.6);
+}
+
+/* Detective Notebook */
+.notebook-panel {
+  background: #fffbeb;
+  border: 3px solid #78350f;
+  border-radius: 6px;
+  padding: 14px;
+  color: #1e293b;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  position: relative;
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 23px,
+    #e2e8f0 23px,
+    #e2e8f0 24px
+  );
+  line-height: 24px;
+}
+
+.notebook-header {
+  font-family: var(--font-pixel);
+  font-size: 0.75rem;
+  color: #78350f;
+  border-bottom: 2px solid #b45309;
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.notebook-clues-list {
+  list-style: none;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  color: #0f172a;
+}
+
+.notebook-entry {
+  margin-bottom: 6px;
+}
+
+.clue-bullet {
+  color: #b45309;
+  font-weight: bold;
+}
+
+.notebook-empty {
+  color: #64748b;
+  font-style: italic;
+}
+
+/* Clue Hint Box */
+.hint-box {
+  background: rgba(245, 158, 11, 0.2);
+  border-left: 4px solid var(--gold-badge);
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  color: #fef08a;
+  margin-top: 10px;
+  border-radius: 0 4px 4px 0;
+}
+
+/* Floating Clue Reward */
+.floating-clue {
+  position: fixed;
+  font-family: var(--font-pixel);
+  font-size: 1.1rem;
+  color: #4ade80;
+  text-shadow: 0 0 8px #16a34a, 2px 2px 0 #000;
+  pointer-events: none;
+  animation: floatClue 1.2s ease-out forwards;
+  z-index: 1000;
+}
+
+@keyframes floatClue {
+  0% { opacity: 0; transform: translateY(0) scale(0.8); }
+  20% { opacity: 1; transform: translateY(-10px) scale(1.1); }
+  80% { opacity: 1; transform: translateY(-30px) scale(1); }
+  100% { opacity: 0; transform: translateY(-45px) scale(0.9); }
+}
+
+/* Feedback Boxes */
+.feedback-box {
+  margin-top: 12px;
+  padding: 12px 16px;
+  border-radius: 4px;
+}
+
+.success-feedback {
+  background: rgba(21, 128, 61, 0.35);
+  border: 2px solid #22c55e;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.3);
+}
+
+.error-feedback {
+  background: rgba(185, 28, 28, 0.35);
+  border: 2px solid #ef4444;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+}
+
+.feedback-heading {
+  font-family: var(--font-pixel);
+  font-size: 0.75rem;
+  margin-bottom: 4px;
+}
+.success-feedback .feedback-heading { color: #4ade80; }
+.error-feedback .feedback-heading { color: #f87171; }
+
+.feedback-body {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: #e2e8f0;
+  margin-bottom: 8px;
+}

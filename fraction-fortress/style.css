@@ -1,0 +1,1042 @@
+/* ==========================================================================
+   FRACTION FORTRESS — STYLING & DESIGN SYSTEM
+   Standard 3 Mathematics: Understanding Fractions & Equal Parts
+   ========================================================================== */
+
+:root {
+  --font-main: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-fantasy: 'Cinzel', serif, Georgia;
+
+  /* Fantasy Palette */
+  --castle-slate: #0f172a;
+  --castle-dark: #1e293b;
+  --castle-mid: #334155;
+  --castle-light: #64748b;
+  --stone-grey: #94a3b8;
+  --stone-cream: #f8fafc;
+  
+  --gold-sun: #facc15;
+  --gold-glow: #f59e0b;
+  --gold-dark: #b45309;
+
+  --magic-blue: #38bdf8;
+  --deep-blue: #0284c7;
+  --royal-blue: #1d4ed8;
+
+  --garden-emerald: #22c55e;
+  --garden-leaf: #16a34a;
+  --garden-dark: #14532d;
+
+  --ruby-red: #ef4444;
+  --wood-brown: #78350f;
+  --wood-light: #b45309;
+
+  /* UI Tokens */
+  --bg-hud: rgba(15, 23, 42, 0.9);
+  --border-hud: rgba(250, 204, 21, 0.4);
+  --shadow-lg: 0 12px 30px rgba(0, 0, 0, 0.5);
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-full: 9999px;
+}
+
+/* Reset & Box Sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #020617;
+  font-family: var(--font-main);
+  color: #ffffff;
+  touch-action: manipulation;
+}
+
+/* Main Container: 100% full screen */
+.game-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at center, #1e293b 0%, #0f172a 70%, #020617 100%);
+}
+
+#game-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 1;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ==========================================================================
+   TOP HUD
+   ========================================================================== */
+.hud {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  right: 12px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.hud-left, .hud-right, .hud-center {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.hud-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-hud);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1.5px solid var(--border-hud);
+  border-radius: var(--radius-full);
+  padding: 6px 14px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.logo-badge {
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.9), rgba(180, 83, 9, 0.9));
+  border-color: #fde68a;
+  color: #ffffff;
+}
+.logo-badge .hud-title {
+  font-family: var(--font-fantasy);
+  font-size: 0.95rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.hud-label {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.hud-value {
+  color: #f8fafc;
+  font-weight: 800;
+  font-size: 0.98rem;
+}
+.score-badge .hud-value {
+  color: var(--gold-sun);
+}
+
+/* Lives */
+.hud-lives-icons {
+  display: flex;
+  gap: 3px;
+  font-size: 0.9rem;
+}
+
+/* Carried Inventory Slot */
+.inventory-badge {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: #38bdf8;
+  padding: 4px 12px;
+}
+.held-item-empty, .held-item-active {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #94a3b8;
+}
+.held-item-active {
+  color: var(--gold-sun);
+  animation: bounce-small 1.5s infinite ease-in-out;
+}
+
+/* ==========================================================================
+   MISSION FRACTION CARD (CENTER HUD)
+   ========================================================================== */
+.mission-card {
+  display: flex;
+  flex-direction: column;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(10px);
+  border: 2px solid var(--gold-sun);
+  border-radius: var(--radius-md);
+  padding: 6px 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(245, 158, 11, 0.3);
+  max-width: 440px;
+}
+.mission-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.mission-tag {
+  font-size: 0.7rem;
+  font-weight: 900;
+  color: var(--gold-sun);
+  letter-spacing: 0.8px;
+}
+.mission-text {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mission-visual-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Large Mathematical Fraction Display */
+.fraction-badge-display {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(30, 41, 59, 0.85);
+  border: 1.5px solid var(--magic-blue);
+  border-radius: 8px;
+  padding: 2px 10px;
+  min-width: 38px;
+}
+.fraction-num {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--gold-sun);
+  line-height: 1;
+}
+.fraction-line {
+  width: 100%;
+  height: 2px;
+  background: #ffffff;
+  margin: 2px 0;
+  border-radius: 2px;
+}
+.fraction-den {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--magic-blue);
+  line-height: 1;
+}
+
+/* Equal Parts Segmented Bar */
+.fraction-equal-bar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex-grow: 1;
+}
+.equal-bar-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+}
+.equal-parts-slots {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 6px;
+  padding: 2px 4px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.equal-segment-slot {
+  flex: 1;
+  height: 100%;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 900;
+}
+.equal-segment-slot.filled {
+  background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+  border-color: #86efac;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+  color: white;
+}
+.equal-segment-slot.prefilled {
+  background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
+  border-color: #bae6fd;
+}
+
+/* HUD Buttons */
+.hud-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hud-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-hud);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-hud);
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: all 0.18s ease;
+}
+.hud-btn:hover {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: var(--gold-sun);
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   FLOATING INTERACTIVE PROMPT
+   ========================================================================== */
+.interact-prompt {
+  position: absolute;
+  z-index: 25;
+  pointer-events: none;
+  transform: translate(-50%, -100%);
+  transition: opacity 0.15s ease, transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.prompt-bubble {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #0f172a;
+  border: 2px solid #ffffff;
+  border-radius: var(--radius-full);
+  padding: 6px 14px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  font-weight: 800;
+  font-size: 0.85rem;
+  animation: prompt-float 1.2s infinite ease-in-out;
+}
+.prompt-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px 6px 0;
+  border-style: solid;
+  border-color: #d97706 transparent transparent;
+}
+@keyframes prompt-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.prompt-key {
+  font-size: 0.72rem;
+  background: rgba(255, 255, 255, 0.45);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   TOAST POPUPS
+   ========================================================================== */
+.toast-container {
+  position: absolute;
+  top: 85px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.95);
+  color: #ffffff;
+  border: 1.5px solid var(--garden-emerald);
+  border-radius: var(--radius-full);
+  padding: 8px 20px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  animation: toast-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), toast-out 0.3s 1.7s ease forwards;
+}
+.toast-item.bonus {
+  border-color: var(--gold-sun);
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(180, 83, 9, 0.95));
+}
+.toast-item.info {
+  border-color: var(--magic-blue);
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(-15px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes toast-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-10px) scale(0.95); }
+}
+
+/* ==========================================================================
+   TOUCH CONTROLS
+   ========================================================================== */
+.touch-controls {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  z-index: 18;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  pointer-events: none;
+}
+.joystick-zone {
+  width: 130px;
+  height: 130px;
+  position: relative;
+  pointer-events: auto;
+}
+.joystick-base {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.65);
+  border: 2px solid rgba(250, 204, 21, 0.3);
+  position: relative;
+}
+.joystick-stick {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #facc15, #d97706);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid #ffffff;
+}
+.touch-actions {
+  display: flex;
+  gap: 12px;
+  pointer-events: auto;
+}
+.touch-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  border: 3px solid #ffffff;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  font-family: var(--font-main);
+  font-weight: 800;
+  cursor: pointer;
+  background: linear-gradient(135deg, #f59e0b, #b45309);
+  color: #0f172a;
+}
+.touch-action-btn:active {
+  transform: scale(0.92);
+}
+.touch-action-btn .touch-icon {
+  font-size: 1.5rem;
+}
+.touch-action-btn .touch-label {
+  font-size: 0.62rem;
+}
+
+/* ==========================================================================
+   BUTTONS (ARCADE DESIGN SYSTEM)
+   ========================================================================== */
+.btn-arcade {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 28px;
+  font-family: var(--font-main);
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: 0.6px;
+  border-radius: var(--radius-full);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.3), 0 10px 20px rgba(0, 0, 0, 0.4);
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.btn-arcade:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.3), 0 14px 24px rgba(0, 0, 0, 0.45);
+}
+.btn-arcade:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3), 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+.btn-primary {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #0f172a;
+  border: 2px solid #fef08a;
+}
+.btn-secondary {
+  background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+  color: #ffffff;
+  border: 2px solid #bae6fd;
+}
+.pulse-btn {
+  animation: btn-pulse 2s infinite ease-in-out;
+}
+@keyframes btn-pulse {
+  0%, 100% { box-shadow: 0 6px 0 rgba(0, 0, 0, 0.3), 0 10px 20px rgba(245, 158, 11, 0.4); }
+  50% { box-shadow: 0 6px 0 rgba(0, 0, 0, 0.3), 0 14px 28px rgba(245, 158, 11, 0.7); }
+}
+
+/* ==========================================================================
+   MODALS & SCREEN OVERLAYS
+   ========================================================================== */
+.modal-overlay, .screen-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(2, 6, 23, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 16px;
+  animation: overlay-fade-in 0.25s ease;
+}
+@keyframes overlay-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-card {
+  background: #ffffff;
+  color: #0f172a;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg), 0 0 40px rgba(0, 0, 0, 0.6);
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: card-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes card-pop {
+  from { opacity: 0; transform: scale(0.92) translateY(15px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.btn-close-modal {
+  background: #f1f5f9;
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+.btn-close-modal:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   START / TITLE SCREEN
+   ========================================================================== */
+.title-screen {
+  background: radial-gradient(circle at center, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.98) 70%, #020617 100%);
+  z-index: 60;
+}
+.title-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 620px;
+  background: rgba(15, 23, 42, 0.94);
+  border: 2px solid var(--gold-sun);
+  border-radius: var(--radius-lg);
+  padding: 36px 32px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 35px rgba(245, 158, 11, 0.3);
+  backdrop-filter: blur(12px);
+}
+.title-fortress-crest {
+  margin-bottom: 12px;
+}
+.crest-shield {
+  width: 84px;
+  height: 94px;
+  background: linear-gradient(135deg, #d97706, #78350f);
+  border: 3px solid #facc15;
+  border-radius: 12px 12px 42px 42px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  position: relative;
+  animation: crest-float 3s infinite ease-in-out;
+}
+@keyframes crest-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.crest-icon {
+  font-size: 2.4rem;
+}
+.crest-fraction-mini {
+  position: absolute;
+  bottom: -10px;
+  background: #0f172a;
+  border: 1.5px solid #facc15;
+  border-radius: 6px;
+  padding: 1px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.65rem;
+  font-weight: 900;
+  color: #facc15;
+}
+.mini-bar {
+  width: 100%;
+  height: 1px;
+  background: #facc15;
+  margin: 1px 0;
+}
+
+.title-badge-tag {
+  background: rgba(250, 204, 21, 0.15);
+  border: 1px solid var(--gold-sun);
+  color: #fde047;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  padding: 4px 14px;
+  border-radius: var(--radius-full);
+  margin-bottom: 12px;
+}
+.game-main-title {
+  font-family: var(--font-fantasy);
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, #fef08a 0%, #facc15 50%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 4px 20px rgba(250, 204, 21, 0.3);
+  margin-bottom: 6px;
+}
+.game-subtitle {
+  font-size: 1.2rem;
+  font-style: italic;
+  font-weight: 600;
+  color: #cbd5e1;
+  margin-bottom: 22px;
+}
+.title-instructions-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 28px;
+  width: 100%;
+}
+.instruction-pill {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+}
+.title-btn-group {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   HOW TO PLAY MODAL
+   ========================================================================== */
+.instructions-card {
+  max-width: 640px;
+  width: 100%;
+  padding: 24px;
+}
+.instructions-card .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+}
+.instructions-card .modal-header h2 {
+  font-family: var(--font-fantasy);
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #0f172a;
+}
+.instructions-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.step-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+}
+.step-number {
+  background: #d97706;
+  color: white;
+  font-weight: 900;
+  font-size: 1.1rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.step-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+.step-info h3 {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 2px;
+}
+.step-info p {
+  font-size: 0.85rem;
+  color: #475569;
+  line-height: 1.35;
+}
+.instructions-card .modal-footer {
+  display: flex;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   ROUND COMPLETE CELEBRATION MODAL
+   ========================================================================== */
+.round-complete-card {
+  max-width: 520px;
+  width: 100%;
+  padding: 32px 24px;
+  text-align: center;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.round-complete-badge {
+  background: #dcfce7;
+  border: 2px solid #22c55e;
+  color: #15803d;
+  font-weight: 900;
+  font-size: 0.92rem;
+  letter-spacing: 1px;
+  padding: 6px 18px;
+  border-radius: var(--radius-full);
+  margin-bottom: 12px;
+}
+.round-complete-card .round-title {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #0f172a;
+  margin-bottom: 12px;
+}
+.celebration-fraction-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  padding: 10px 18px;
+  margin-bottom: 14px;
+}
+.celebration-fraction {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #d97706;
+}
+.celebration-equal-sign {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #64748b;
+}
+.celebration-bar {
+  display: flex;
+  gap: 4px;
+  height: 24px;
+}
+.celebration-bar .c-slot {
+  width: 28px;
+  height: 100%;
+  border-radius: 4px;
+  border: 1.5px solid #cbd5e1;
+  background: #f1f5f9;
+}
+.celebration-bar .c-slot.filled {
+  background: #22c55e;
+  border-color: #15803d;
+}
+
+.round-complete-card .round-desc {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-bottom: 20px;
+}
+.round-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 24px;
+}
+.stat-box {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.stat-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+}
+.stat-val {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+/* ==========================================================================
+   FINAL GAME OVER / CERTIFICATE SCREEN
+   ========================================================================== */
+.game-over-screen {
+  background: radial-gradient(circle at center, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 70%, #020617 100%);
+  z-index: 60;
+}
+.game-over-card {
+  max-width: 660px;
+  width: 100%;
+  background: #ffffff;
+  color: #0f172a;
+  border-radius: var(--radius-lg);
+  padding: 32px 28px;
+  text-align: center;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+  border: 4px solid var(--gold-sun);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.certificate-seal {
+  font-size: 3.5rem;
+  margin-bottom: 4px;
+}
+.cert-header-tag {
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  color: #92400e;
+  background: #fef3c7;
+  padding: 4px 14px;
+  border-radius: var(--radius-full);
+  margin-bottom: 8px;
+}
+.game-over-title {
+  font-family: var(--font-fantasy);
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+.game-over-subtitle {
+  font-size: 0.95rem;
+  color: #475569;
+  margin-bottom: 16px;
+}
+.stars-row {
+  font-size: 2.2rem;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.final-stats-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+.final-stat-item {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.final-stat-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+}
+.final-stat-val {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: #0f172a;
+}
+.final-stat-val.highlight {
+  color: #d97706;
+}
+.rank-badge {
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 0.8rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.showcase-box {
+  background: #f1f5f9;
+  border: 1.5px solid #cbd5e1;
+  border-radius: var(--radius-md);
+  padding: 12px;
+  width: 100%;
+  margin-bottom: 24px;
+}
+.showcase-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #334155;
+  margin-bottom: 10px;
+}
+.showcase-fractions-pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+.showcase-pill {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (TABLETS & MOBILE)
+   ========================================================================== */
+@media (max-width: 900px) {
+  .hud {
+    flex-wrap: wrap;
+    top: 6px;
+    left: 8px;
+    right: 8px;
+  }
+  .hud-center {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    margin-top: 4px;
+  }
+  .mission-card {
+    max-width: 100%;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .logo-badge .hud-title {
+    display: none;
+  }
+  .hud-badge {
+    padding: 4px 10px;
+    font-size: 0.8rem;
+  }
+  .game-main-title {
+    font-size: 2.2rem;
+  }
+  .final-stats-board {
+    grid-template-columns: 1fr 1fr;
+  }
+}

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Space Mission Control - Probability: Likelihood</title>
+  <link rel="stylesheet" href="css/pixel-ui.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Optional CRT Scanline Overlay -->
+  <div class="crt-overlay"></div>
+
+  <div id="game-container">
+    
+    <!-- Top Global Navigation Bar -->
+    <header class="top-nav-bar">
+      <div class="nav-brand">
+        <span>🚀</span> SPACE MISSION CONTROL
+      </div>
+      <div class="nav-actions">
+        <button class="pixel-btn sound-toggle-btn" title="Toggle Sound">🔊 <span class="btn-lbl">Sound ON</span></button>
+        <button class="pixel-btn fullscreen-toggle-btn" title="Toggle Fullscreen">⛶ <span class="btn-lbl">Fullscreen</span></button>
+        <button class="pixel-btn btn-to-level-select" title="Mission Select">🗺️ <span class="btn-lbl">Missions</span></button>
+      </div>
+    </header>
+
+    <!-- ==============================================
+         1. MAIN MENU SCREEN
+         ============================================== -->
+    <main id="menu-screen" class="screen active">
+      <div class="menu-content pixel-box">
+        <div class="game-logo-badge">MATHEMATICS // PROBABILITY DIVISION</div>
+        <h1 class="game-title">SPACE MISSION<br>CONTROL</h1>
+        <p class="game-subtitle">Monitor conditions. Predict likelihood. Command the fleet.</p>
+
+        <div class="menu-actions">
+          <button id="btn-start-game" class="pixel-btn btn-primary">
+            <span>▶</span> START MISSIONS
+          </button>
+          <button id="btn-instructions" class="pixel-btn">
+            <span>📖</span> MISSION ACADEMY (GUIDE)
+          </button>
+        </div>
+
+        <div class="menu-footer">
+          <span>ROOM: LIKELIHOOD</span>
+          <span>10 PLAYABLE MISSIONS</span>
+          <button id="btn-reset-progress" class="pixel-btn" style="font-size:0.6rem; padding: 4px 8px;">RESET</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- ==============================================
+         2. LEVEL SELECTION SCREEN
+         ============================================== -->
+    <section id="level-select-screen" class="screen">
+      <div class="level-select-header">
+        <h2 class="screen-title">SELECT MISSION OBJECTIVE</h2>
+        <p style="color:#94a3b8; font-size:0.9rem;">Complete missions sequentially to unlock advanced operations.</p>
+      </div>
+
+      <div id="level-grid" class="level-grid">
+        <!-- Rendered dynamically by UIController -->
+      </div>
+
+      <div style="text-align: center; margin-top: 10px;">
+        <button class="pixel-btn btn-back-to-menu">◀ RETURN TO MAIN MENU</button>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         3. MISSION BRIEFING SCREEN
+         ============================================== -->
+    <section id="briefing-screen" class="screen">
+      <div class="briefing-box pixel-box">
+        <div class="briefing-header">
+          <div class="section-label">MISSION BRIEFING TELEMETRY</div>
+          <h2 id="briefing-title" class="briefing-title">Level 1 - First Contact</h2>
+        </div>
+
+        <div class="briefing-section">
+          <div class="section-label">MISSION SITUATION</div>
+          <p id="briefing-lore" class="briefing-lore">Loading situation lore...</p>
+        </div>
+
+        <div class="briefing-section">
+          <div class="concept-card">
+            <div id="briefing-concept-title" class="concept-title">Concept: Impossible vs Certain</div>
+            <div id="briefing-concept-explain" class="concept-explain">Concept description...</div>
+          </div>
+        </div>
+
+        <div class="briefing-section">
+          <div class="section-label">COMMAND DIRECTIVE</div>
+          <p id="briefing-instructions" style="color: #cbd5e1; font-size: 0.95rem;">Follow command instructions.</p>
+        </div>
+
+        <div class="briefing-footer">
+          <button class="pixel-btn btn-to-level-select">◀ ABORT / MAP</button>
+          <button id="btn-briefing-launch" class="pixel-btn btn-confirm">ENGAGE SYSTEMS ➔</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         4. GAMEPLAY SCREEN
+         ============================================== -->
+    <section id="gameplay-screen" class="screen">
+      <!-- Top HUD -->
+      <div class="game-hud">
+        <div class="hud-item">
+          <span class="hud-label">MISSION:</span>
+          <span id="hud-level-title" class="hud-val">L-01</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">SCORE:</span>
+          <span id="hud-score" class="hud-val">0</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">SHIELDS / FUEL:</span>
+          <div class="hud-bar-outer">
+            <div id="hud-fuel-fill" class="hud-bar-fill"></div>
+          </div>
+          <span id="hud-fuel-val" class="hud-val" style="font-size:0.65rem;">100%</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">PROGRESS:</span>
+          <div class="hud-bar-outer" style="width: 70px;">
+            <div id="hud-progress-fill" class="hud-bar-fill" style="background: var(--neon-cyan); width: 0%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Command Deck -->
+      <div class="command-deck">
+        
+        <!-- Left: Visual Observation & Radar Systems -->
+        <div class="visualizers-panel">
+          
+          <!-- Space Observation Canvas -->
+          <div class="screen-frame">
+            <div class="screen-header-tab">LIVE OBSERVATION FEED</div>
+            <div class="canvas-container">
+              <canvas id="space-canvas"></canvas>
+            </div>
+          </div>
+
+          <!-- Radar System Row -->
+          <div class="radar-row">
+            <div class="radar-container">
+              <canvas id="radar-canvas"></canvas>
+            </div>
+            <div class="radar-telemetry">
+              <div class="telemetry-title">RADAR SECTOR SCANNER</div>
+              <div>SWEEP: 360° ACTIVE</div>
+              <div>FREQUENCY: 1420.4 MHz</div>
+              <div>STATUS: TRACKING BLIPS</div>
+              <div style="font-size:0.75rem; color:#6ee7b7; margin-top:4px;">
+                💡 Tip: Click blips on radar to inspect targets!
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right: Tactical Operations & Probability Console -->
+        <div class="operations-panel pixel-box">
+          <div>
+            <div id="mission-step-title" class="step-heading">STAGE 1: DIAGNOSTIC SENSOR READOUT</div>
+            <p id="mission-step-desc" class="step-desc">Loading telemetry details...</p>
+
+            <!-- Interactive Equipment / Data Visualizer (e.g. channels, hazard blocks) -->
+            <div id="interactive-equipment-box"></div>
+
+            <div id="mission-question-text" class="question-prompt">
+              Evaluating likelihood...
+            </div>
+
+            <!-- Visual Probability Gauge Meter -->
+            <div class="prob-gauge-container">
+              <div style="display:flex; justify-content:space-between; font-size:0.7rem; font-family:var(--font-pixel); margin-bottom:4px;">
+                <span id="prob-status-label" style="color:var(--neon-cyan);">PROBABILITY GAUGE</span>
+                <span id="prob-value-label" style="color:#ffffff;">50% CHANCE</span>
+              </div>
+              <div class="prob-gauge-track">
+                <div id="prob-gauge-fill" class="prob-gauge-fill"></div>
+                <div id="prob-needle" class="prob-needle"></div>
+              </div>
+              <div class="prob-markers">
+                <span class="marker imp">IMPOSSIBLE (0%)</span>
+                <span class="marker unl">UNLIKELY</span>
+                <span class="marker eql">EQUALLY LIKELY (50%)</span>
+                <span class="marker lik">LIKELY</span>
+                <span class="marker cer">CERTAIN (100%)</span>
+              </div>
+            </div>
+
+            <!-- 5 Likelihood Selection Buttons -->
+            <div id="prob-options-container" class="prob-options-grid">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- Mission Feedback & Explanations -->
+          <div id="mission-feedback-box" class="feedback-box hidden">
+            <!-- Rendered upon answering -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==============================================
+         5. LEVEL COMPLETE SCREEN
+         ============================================== -->
+    <section id="level-complete-screen" class="screen">
+      <div class="complete-box pixel-box">
+        <h2 id="complete-level-title" class="screen-title" style="color:var(--neon-green);">MISSION SUCCESSFUL!</h2>
+        
+        <div class="complete-stars-row">
+          <div id="complete-stars"></div>
+        </div>
+
+        <div id="complete-score" class="score-badge">100 PTS</div>
+
+        <div id="complete-concept-debrief" class="debrief-card">
+          <!-- Debrief details -->
+        </div>
+
+        <div class="complete-actions">
+          <button id="btn-replay-mission" class="pixel-btn btn-retry">↺ REPLAY MISSION</button>
+          <button class="pixel-btn btn-to-level-select">🗺️ LEVEL MAP</button>
+          <button id="btn-next-mission" class="pixel-btn btn-confirm">CONTINUE TO NEXT MISSION ➔</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         6. FINAL RESULTS SCREEN
+         ============================================== -->
+    <section id="final-results-screen" class="screen">
+      <div class="results-box pixel-box">
+        <div class="admiral-badge">🎖️</div>
+        <h2 class="screen-title" style="color:var(--neon-amber); font-size:1.6rem;">FLEET ADMIRAL QUALIFIED!</h2>
+        <div id="final-commander-rank" class="final-rank">GRAND FLEET ADMIRAL</div>
+        <p style="color:#cbd5e1; font-size:1rem; line-height:1.5;">
+          Congratulations, Commander! You have successfully mastered all 10 space probability operations and safely guided our fleet through the solar system.
+        </p>
+
+        <div class="results-stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">TOTAL SCORE EARNED</div>
+            <div id="final-total-score" class="stat-value">1,200 PTS</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">MISSIONS ACCOMPLISHED</div>
+            <div id="final-levels-completed" class="stat-value">10 / 10</div>
+          </div>
+        </div>
+
+        <div class="debrief-card" style="text-align: left;">
+          <h3 style="color:var(--neon-cyan);">PROBABILITY CONCEPTS MASTERED:</h3>
+          <ul style="margin-left: 20px; line-height: 1.6; color:#e2e8f0;">
+            <li><strong style="color:#ef4444;">Impossible:</strong> 0% chance (cannot happen)</li>
+            <li><strong style="color:#f97316;">Unlikely:</strong> Small chance of happening (less than half)</li>
+            <li><strong style="color:#eab308;">Equally Likely:</strong> Identical chance between outcomes (50/50)</li>
+            <li><strong style="color:#06b6d4;">Likely:</strong> High chance of happening (more than half)</li>
+            <li><strong style="color:#22c55e;">Certain:</strong> 100% guaranteed to happen</li>
+          </ul>
+        </div>
+
+        <div style="display:flex; justify-content:center; gap:12px; margin-top:20px;">
+          <button id="btn-play-again" class="pixel-btn btn-primary">REPLAY FROM LEVEL 1 🚀</button>
+          <button class="pixel-btn btn-to-level-select">CHOOSE A MISSION 🗺️</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         7. INSTRUCTIONS SCREEN (ACADEMY)
+         ============================================== -->
+    <section id="instructions-screen" class="screen">
+      <div class="instructions-box pixel-box">
+        <h2 class="screen-title" style="text-align:center;">SPACE COMMAND ACADEMY</h2>
+        <p style="text-align:center; color:#94a3b8; margin-bottom:16px;">
+          Learn the 5 likelihood terms used by Space Mission Commanders to evaluate space missions.
+        </p>
+
+        <div class="instructions-grid">
+          <div class="instr-card imp">
+            <div class="instr-title" style="color:#ef4444;">🚫 IMPOSSIBLE (0% CHANCE)</div>
+            <div class="instr-desc">
+              An event that <strong>CANNOT happen</strong> under the given conditions.<br>
+              <em>Example:</em> Sound traveling through empty space vacuum without air molecules, or lighting a campfire without oxygen.
+            </div>
+          </div>
+
+          <div class="instr-card unl">
+            <div class="instr-title" style="color:#f97316;">📉 UNLIKELY (LOW CHANCE)</div>
+            <div class="instr-desc">
+              An event with a <strong>small chance</strong> of happening (less than half).<br>
+              <em>Example:</em> Picking the 1 damaged satellite channel out of 10 total channels (1 out of 10 = 10%).
+            </div>
+          </div>
+
+          <div class="instr-card eql">
+            <div class="instr-title" style="color:#eab308;">⚖️ EQUALLY LIKELY (50/50 CHANCE)</div>
+            <div class="instr-desc">
+              Two or more outcomes that have the <strong>EXACT SAME chance</strong> of happening.<br>
+              <em>Example:</em> Flipping a coin (Heads or Tails), or choosing between 2 docking ports where both are equally open.
+            </div>
+          </div>
+
+          <div class="instr-card lik">
+            <div class="instr-title" style="color:#06b6d4;">📈 LIKELY (HIGH CHANCE)</div>
+            <div class="instr-desc">
+              An event with a <strong>high chance</strong> of happening (more than half).<br>
+              <em>Example:</em> Selecting a clear navigation path when 9 out of 10 lanes are completely clear of asteroids (90%).
+            </div>
+          </div>
+
+          <div class="instr-card cer">
+            <div class="instr-title" style="color:#22c55e;">🎯 CERTAIN (100% CHANCE)</div>
+            <div class="instr-desc">
+              An event that is <strong>100% guaranteed</strong> to happen under the given conditions.<br>
+              <em>Example:</em> A spacecraft orbiting Earth experiencing Earth's gravitational pull, or solar panels producing zero power in a total solar eclipse.
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align:center; margin-top:20px;">
+          <button class="pixel-btn btn-confirm btn-back-to-menu">◀ RETURN TO MISSION CONTROL</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Game Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/starfield.js"></script>
+  <script src="js/radar.js"></script>
+  <script src="js/gameState.js"></script>
+  <script src="js/levelsData.js"></script>
+  <script src="js/probability.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/game.js"></script>
+
+  <script>
+    // Launch game on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      window.uiCtrl.init();
+      window.gameEngine.init();
+    });
+  </script>
+</body>
+</html>

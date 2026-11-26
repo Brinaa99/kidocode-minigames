@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Angle Navigator — Estimating Angles Arcade</title>
+  <meta name="description" content="Master angle estimation by navigating an exploration rover through varied biomes using benchmark angles 45°, 90°, and 180°.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800;900&family=Outfit:wght@500;600;700;800;900&family=JetBrains+Mono:wght@700;900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game-app">
+    <div id="game-container">
+      
+      <!-- TOP RETRO ARCADE EXPEDITION HUD -->
+      <header id="game-hud" class="hud-panel">
+        <div class="hud-group-left">
+          <div class="hud-box score-box">
+            <span class="hud-label">SCORE</span>
+            <span id="score-display" class="hud-value hud-mono">000000</span>
+          </div>
+
+          <div class="hud-box lives-box">
+            <span class="hud-label">ENERGY</span>
+            <div id="lives-container" class="lives-container" aria-label="3 lives remaining">
+              <span class="arcade-life life-full" id="life-1">⚡</span>
+              <span class="arcade-life life-full" id="life-2">⚡</span>
+              <span class="arcade-life life-full" id="life-3">⚡</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hud-group-center">
+          <div class="hud-box time-box">
+            <span class="hud-label">TIME</span>
+            <span id="timer-display" class="hud-value hud-mono">060</span>
+          </div>
+          <div class="hud-box round-box">
+            <span class="hud-label">ROUND</span>
+            <span id="round-display" class="hud-value">01 / 10</span>
+          </div>
+          <div class="hud-box streak-box">
+            <span class="hud-label">STREAK</span>
+            <span id="streak-display" class="hud-value streak-accent">1x</span>
+          </div>
+          <div class="hud-box heading-hud-box">
+            <span class="hud-label">HEADING ARC</span>
+            <span id="heading-hud-display" class="hud-value angle-accent">0°</span>
+          </div>
+          <div class="hud-box biome-hud-box">
+            <span class="hud-label">BIOME</span>
+            <span id="biome-hud-display" class="hud-value biome-badge">PLAINS</span>
+          </div>
+        </div>
+
+        <div class="hud-group-right">
+          <button id="pause-btn" class="hud-icon-btn" title="Pause Game" aria-label="Pause Game">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+          </button>
+          <button id="hud-how-to-play-btn" class="hud-icon-btn" title="How to Play" aria-label="How to Play">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm1.07-7.75l-.9.92C12.45 11.9 12 12.5 12 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
+          </button>
+          <button id="sound-toggle-btn" class="hud-icon-btn" title="Toggle Sound" aria-label="Toggle Sound">
+            <svg id="sound-icon-on" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+            <svg id="sound-icon-off" class="hidden" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- ACTIVE MISSION INSTRUCTION BANNER -->
+      <div id="mission-instruction-banner" class="mission-banner">
+        <div class="banner-badge-icon" id="banner-icon">🧭</div>
+        <div class="banner-content">
+          <div class="banner-sub-row">
+            <span class="banner-sub">EXPEDITION MISSION</span>
+            <span id="banner-checkpoint-tag" class="banner-checkpoint-tag">LEG 1/1</span>
+          </div>
+          <span id="banner-text" class="banner-title">ESTIMATE 45° AND REACH THE FLAG</span>
+        </div>
+        <div class="banner-benchmark-badge" id="banner-benchmark-badge">
+          <span class="benchmark-label">BENCHMARK</span>
+          <span id="benchmark-val" class="benchmark-val">45° DIAGONAL</span>
+        </div>
+      </div>
+
+      <!-- MAIN GAMEPLAY CANVAS AREA -->
+      <main id="gameplay-area">
+        <canvas id="game-canvas"></canvas>
+
+        <!-- FLOATING CONTROL PANEL (Bottom Bar) -->
+        <div id="canvas-control-overlay" class="canvas-control-overlay">
+          <div class="control-row-tuning">
+            <button id="btn-deg-minus-15" class="btn-micro" title="Turn Left 15°" aria-label="Turn Left 15°">◀ -15°</button>
+            <button id="btn-deg-minus-5" class="btn-micro" title="Turn Left 5°" aria-label="Turn Left 5°">-5°</button>
+            <button id="btn-deg-minus-1" class="btn-micro" title="Turn Left 1°" aria-label="Turn Left 1°">-1°</button>
+            
+            <div class="current-heading-pill" id="current-heading-pill">
+              <span class="pill-label">AIM:</span>
+              <span id="pill-heading-val" class="pill-val">0°</span>
+            </div>
+
+            <button id="btn-deg-plus-1" class="btn-micro" title="Turn Right 1°" aria-label="Turn Right 1°">+1°</button>
+            <button id="btn-deg-plus-5" class="btn-micro" title="Turn Right 5°" aria-label="Turn Right 5°">+5°</button>
+            <button id="btn-deg-plus-15" class="btn-micro" title="Turn Right 15°" aria-label="Turn Right 15°">+15° ▶</button>
+          </div>
+
+          <div class="control-row-action">
+            <button id="btn-reset-angle" class="btn-secondary-action" title="Reset to Forward (0°)">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+              <span>RESET (0°)</span>
+            </button>
+
+            <!-- MAIN GO BUTTON -->
+            <button id="btn-launch-rover" class="btn-launch" title="Launch Rover (Space / Enter)">
+              <span class="btn-launch-icon">🚀</span>
+              <span class="btn-launch-text">GO!</span>
+            </button>
+
+            <!-- QUICK BENCHMARK PRESETS -->
+            <div class="benchmark-presets-group">
+              <button class="btn-preset" data-angle="45" title="Set 45°">45°</button>
+              <button class="btn-preset" data-angle="90" title="Set 90°">90°</button>
+              <button class="btn-preset" data-angle="180" title="Set 180°">180°</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- POST-ESTIMATION FEEDBACK POPUP CARD -->
+        <div id="estimation-feedback-card" class="estimation-feedback-card hidden" aria-live="polite">
+          <div class="feedback-card-glow"></div>
+          <div class="feedback-card-header">
+            <span id="feedback-badge" class="feedback-badge">EXCELLENT!</span>
+            <span id="feedback-pts" class="feedback-pts">+200 PTS</span>
+          </div>
+          <div class="feedback-stats-grid">
+            <div class="feedback-stat">
+              <span class="stat-label">YOUR ESTIMATE</span>
+              <span id="feedback-estimate-val" class="stat-value">44°</span>
+            </div>
+            <div class="feedback-stat">
+              <span class="stat-label">TARGET ANGLE</span>
+              <span id="feedback-target-val" class="stat-value">45°</span>
+            </div>
+            <div class="feedback-stat">
+              <span class="stat-label">DIFFERENCE</span>
+              <span id="feedback-diff-val" class="stat-value diff-good">1°</span>
+            </div>
+          </div>
+          <p id="feedback-quote" class="feedback-quote">Spot-on diagonal angle estimation!</p>
+          <div class="feedback-actions">
+            <button id="feedback-continue-btn" class="btn-continue-expedition">CONTINUE ▶</button>
+          </div>
+        </div>
+
+      </main>
+
+      <!-- OVERLAYS & MODALS -->
+      
+      <!-- 1. START SCREEN -->
+      <div id="start-modal" class="game-modal-overlay active">
+        <div class="modal-card start-card">
+          <div class="game-logo-badge">🧭 ARCADE EXPEDITION</div>
+          <h1 class="game-title">ANGLE NAVIGATOR</h1>
+          <p class="game-tagline">ESTIMATE. &nbsp;TURN. &nbsp;EXPLORE.</p>
+
+          <div class="start-features-preview">
+            <div class="feature-item">
+              <div class="feature-icon">📐</div>
+              <div class="feature-text">
+                <strong>Visual Estimation</strong>
+                <span>Benchmark angles: 45°, 90°, 180°</span>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-icon">🚙</div>
+              <div class="feature-text">
+                <strong>Exploration Rover</strong>
+                <span>Rotate, aim trajectory, and launch!</span>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-icon">🌲🏜️🏔️</div>
+              <div class="feature-text">
+                <strong>5 Dynamic Biomes</strong>
+                <span>10 challenging exploration rounds</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-buttons-column">
+            <button id="start-game-btn" class="btn-primary-modal">
+              <span>START EXPEDITION</span>
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <button id="how-to-play-btn" class="btn-secondary-modal">
+              <span>HOW TO PLAY</span>
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm1.07-7.75l-.9.92C12.45 11.9 12 12.5 12 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. HOW TO PLAY MODAL -->
+      <div id="instructions-modal" class="game-modal-overlay hidden">
+        <div class="modal-card instructions-card">
+          <div class="modal-header-row">
+            <h2 class="modal-title">HOW TO PLAY</h2>
+            <button id="close-instructions-btn" class="btn-close-modal" aria-label="Close Instructions">✕</button>
+          </div>
+
+          <div class="instructions-steps-grid">
+            <div class="step-card">
+              <div class="step-num">1</div>
+              <div class="step-visual">
+                <div class="demo-look-target">🚩</div>
+              </div>
+              <h3>1. LOOK AT TARGET</h3>
+              <p>Observe the destination marker and compare it to your forward heading (0°).</p>
+            </div>
+
+            <div class="step-card">
+              <div class="step-num">2</div>
+              <div class="step-visual">
+                <div class="benchmark-pill-guide">
+                  <span class="pill-b">45° (Diagonal)</span>
+                  <span class="pill-b">90° (Quarter Turn)</span>
+                  <span class="pill-b">180° (Turn Around)</span>
+                </div>
+              </div>
+              <h3>2. ESTIMATE ANGLE</h3>
+              <p>Use visual benchmark angles to estimate the required turn.</p>
+            </div>
+
+            <div class="step-card">
+              <div class="step-num">3</div>
+              <div class="step-visual">
+                <div class="demo-controls-row">
+                  <span class="ctrl-key">A / D</span>
+                  <span class="ctrl-key">Drag Mouse / Touch</span>
+                </div>
+              </div>
+              <h3>3. ROTATE ROVER</h3>
+              <p>Turn the vehicle using keyboard, mouse drag, touch, or quick angle buttons.</p>
+            </div>
+
+            <div class="step-card">
+              <div class="step-num">4</div>
+              <div class="step-visual">
+                <div class="demo-go-btn">🚀 GO!</div>
+              </div>
+              <h3>4. MOVE & SCORE</h3>
+              <p>Press GO! The closer your estimate, the higher your score and streak bonus!</p>
+            </div>
+          </div>
+
+          <div class="accuracy-tier-strip">
+            <div class="tier-badge tier-excellent">Within 5° = EXCELLENT (+200)</div>
+            <div class="tier-badge tier-great">Within 10° = GREAT (+150)</div>
+            <div class="tier-badge tier-good">Within 15° = GOOD (+100)</div>
+          </div>
+
+          <div class="modal-footer-single">
+            <button id="instructions-ready-btn" class="btn-primary-modal">
+              <span>READY TO EXPLORE!</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. PAUSE MODAL -->
+      <div id="pause-modal" class="game-modal-overlay hidden">
+        <div class="modal-card pause-card">
+          <h2 class="modal-title">EXPEDITION PAUSED</h2>
+          <div class="pause-stats-summary">
+            <p>Score: <strong id="pause-score-val">0</strong></p>
+            <p>Round: <strong id="pause-round-val">1 / 10</strong></p>
+            <p>Streak: <strong id="pause-streak-val">1x</strong></p>
+          </div>
+          <div class="modal-buttons-column">
+            <button id="resume-btn" class="btn-primary-modal">
+              <span>RESUME EXPEDITION</span>
+            </button>
+            <button id="restart-from-pause-btn" class="btn-secondary-modal">
+              <span>RESTART GAME</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. GAME OVER MODAL -->
+      <div id="game-over-modal" class="game-modal-overlay hidden">
+        <div class="modal-card game-over-card">
+          <div class="game-over-icon">🛑</div>
+          <h2 class="modal-title text-danger">EXPEDITION OVER</h2>
+          <p class="modal-sub">Energy depleted or time ran out in the field!</p>
+
+          <div class="results-grid">
+            <div class="result-box">
+              <span class="res-label">FINAL SCORE</span>
+              <span id="go-final-score" class="res-value">000000</span>
+            </div>
+            <div class="result-box">
+              <span class="res-label">BEST ESTIMATE</span>
+              <span id="go-best-estimate" class="res-value">±2°</span>
+            </div>
+            <div class="result-box">
+              <span class="res-label">BEST STREAK</span>
+              <span id="go-best-streak" class="res-value">3x</span>
+            </div>
+            <div class="result-box">
+              <span class="res-label">ROUNDS COMPLETED</span>
+              <span id="go-rounds-completed" class="res-value">4 / 10</span>
+            </div>
+          </div>
+
+          <div class="modal-buttons-column">
+            <button id="game-over-restart-btn" class="btn-primary-modal">
+              <span>PLAY AGAIN</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. VICTORY / EXPEDITION COMPLETE MODAL -->
+      <div id="victory-modal" class="game-modal-overlay hidden">
+        <div class="modal-card victory-card">
+          <div class="victory-trophy">🏆</div>
+          <h2 class="modal-title text-gold">EXPLORER COMPLETE!</h2>
+          <p class="modal-sub">All 10 navigation challenges mastered with outstanding angle estimation!</p>
+
+          <!-- 3-STAR RATING DISPLAY -->
+          <div class="star-rating-row" id="victory-stars">
+            <span class="victory-star active">★</span>
+            <span class="victory-star active">★</span>
+            <span class="victory-star active">★</span>
+          </div>
+
+          <div class="results-grid">
+            <div class="result-box">
+              <span class="res-label">FINAL SCORE</span>
+              <span id="vic-final-score" class="res-value text-gold">002450</span>
+            </div>
+            <div class="result-box">
+              <span class="res-label">ACCURACY RATE</span>
+              <span id="vic-accuracy" class="res-value">94%</span>
+            </div>
+            <div class="result-box">
+              <span class="res-label">BEST ESTIMATE</span>
+              <span id="vic-best-estimate" class="res-value">±0°</span>
+            </div>
+            <div class="result-box">
+              <span class="res-label">EXPEDITION TIME</span>
+              <span id="vic-total-time" class="res-value">148s</span>
+            </div>
+          </div>
+
+          <div class="modal-buttons-column">
+            <button id="victory-play-again-btn" class="btn-primary-modal btn-victory-glow">
+              <span>START NEW EXPEDITION</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

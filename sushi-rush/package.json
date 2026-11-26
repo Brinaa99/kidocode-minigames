@@ -1,0 +1,20 @@
+{
+  "name": "sushi-rush",
+  "version": "1.0.0",
+  "description": "Educational retro pixel-art cooking simulation game teaching Multiplication & Equal Groups for primary school students",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve -l 3001 .",
+    "serve": "npx serve -l 3001 ."
+  },
+  "keywords": [
+    "educational-game",
+    "multiplication",
+    "math-game",
+    "cooking-simulation",
+    "sushi",
+    "primary-school"
+  ],
+  "author": "Google Antigravity Team",
+  "license": "MIT"
+}

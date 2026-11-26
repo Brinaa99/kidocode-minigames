@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sushi Rush - Multiplication & Equal Groups</title>
+  <link rel="stylesheet" href="css/pixel-ui.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div id="game-container">
+    
+    <!-- Top Global Navigation Bar -->
+    <header class="top-nav-bar">
+      <div class="nav-brand">
+        <span>🍣</span> SUSHI RUSH
+      </div>
+      <div class="nav-actions">
+        <button class="pixel-btn sound-toggle-btn" title="Toggle Sound">🔊 <span class="btn-lbl">Sound ON</span></button>
+        <button class="pixel-btn fullscreen-toggle-btn" title="Toggle Fullscreen">⛶ <span class="btn-lbl">Fullscreen</span></button>
+        <button class="pixel-btn btn-to-level-select" title="Level Map">🗺️ <span class="btn-lbl">Levels</span></button>
+      </div>
+    </header>
+
+    <!-- ==============================================
+         1. MAIN MENU SCREEN
+         ============================================== -->
+    <main id="menu-screen" class="screen active">
+      <div class="menu-content pixel-box">
+        <div class="game-logo-badge">ROOM 2: MULTIPLICATION // MULTIPLES & FACTORS</div>
+        <h1 class="game-title">SUSHI<br>RUSH</h1>
+        <p class="game-subtitle">Cook delicious sushi, calculate orders, and master multiplication!</p>
+
+        <div class="menu-actions">
+          <button id="btn-start-game" class="pixel-btn btn-primary">
+            <span>🥢</span> START COOKING
+          </button>
+          <button id="btn-instructions" class="pixel-btn">
+            <span>📖</span> KITCHEN ACADEMY (GUIDE)
+          </button>
+        </div>
+
+        <div class="menu-footer">
+          <span>SUBJECT: MATHEMATICS</span>
+          <span>10 RESTAURANT LEVELS</span>
+          <button id="btn-reset-progress" class="pixel-btn" style="font-size:0.6rem; padding: 4px 8px;">RESET</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- ==============================================
+         2. LEVEL SELECTION SCREEN
+         ============================================== -->
+    <section id="level-select-screen" class="screen">
+      <div class="level-select-header">
+        <h2 class="screen-title">SELECT RESTAURANT DAY</h2>
+        <p style="color:#fde68a; font-size:0.9rem;">Master multiplication tables sequentially from Level 1 to 10.</p>
+      </div>
+
+      <div id="level-grid" class="level-grid">
+        <!-- Rendered dynamically by UIController -->
+      </div>
+
+      <div style="text-align: center; margin-top: 10px;">
+        <button class="pixel-btn btn-back-to-menu">◀ RETURN TO MAIN MENU</button>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         3. RESTAURANT INTRODUCTION / BRIEFING
+         ============================================== -->
+    <section id="briefing-screen" class="screen">
+      <div class="briefing-box pixel-box">
+        <div class="briefing-header">
+          <div class="section-label">RESTAURANT DAY BRIEFING</div>
+          <h2 id="briefing-title" class="briefing-title">Level 1 - First Day at the Sushi Bar</h2>
+        </div>
+
+        <div class="briefing-section">
+          <div class="section-label">TODAY'S SPECIALTY & MULTIPLICATION GOAL</div>
+          <div id="briefing-concept" class="concept-card">Concept description...</div>
+        </div>
+
+        <div class="briefing-section" style="display:flex; justify-content:space-between; font-size:0.85rem; color:#fde68a;">
+          <span id="briefing-tables">Practicing: Equal Groups</span>
+          <span id="briefing-orders-count">3 Customer Orders</span>
+        </div>
+
+        <div class="briefing-footer">
+          <button class="pixel-btn btn-to-level-select">◀ LEVEL MAP</button>
+          <button id="btn-briefing-start-day" class="pixel-btn btn-confirm">OPEN RESTAURANT ➔</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         4. GAMEPLAY SCREEN
+         ============================================== -->
+    <section id="gameplay-screen" class="screen">
+      <!-- Top HUD -->
+      <div class="game-hud">
+        <div class="hud-item">
+          <span class="hud-label">DAY:</span>
+          <span id="hud-level-title" class="hud-val">LVL 1</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">ORDERS:</span>
+          <span id="hud-day-progress" class="hud-val">Order 1 of 3</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">COINS:</span>
+          <span id="hud-coins" class="hud-val" style="color:var(--gold-coin);">0</span>
+          <span>🪙</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">SCORE:</span>
+          <span id="hud-score" class="hud-val">0</span>
+        </div>
+      </div>
+
+      <!-- Main Kitchen Deck -->
+      <div class="kitchen-deck">
+        
+        <!-- Left: Customer Counter & Animated Restaurant -->
+        <div class="restaurant-view-panel">
+          <div class="canvas-container">
+            <canvas id="restaurant-canvas"></canvas>
+          </div>
+
+          <!-- Customer Order Speech Bubble Callout -->
+          <div class="customer-order-callout pixel-box">
+            <div id="customer-name-tag" class="callout-name">Customer: Kenji</div>
+            <div id="customer-speech-bubble" class="speech-bubble">
+              "Hi Chef! I'd like 2 plates of Salmon Nigiri, please."
+            </div>
+            <div style="margin-top:12px; font-family:var(--font-pixel); font-size:0.75rem; color:var(--gold-coin);" id="order-dish-title">
+              🍣 Salmon Nigiri
+            </div>
+            <div id="order-requirement-summary" style="font-size:0.95rem; color:#fef3c7; margin-top:4px;">
+              Need: 2 plates with 2 pieces each.
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Sushi Preparation Station -->
+        <div class="prep-operations-panel pixel-box">
+          <div>
+            <!-- Step 1: Ingredient Selection -->
+            <div class="prep-heading">1. CHOOSE FRESH INGREDIENT</div>
+            <div id="ingredients-selector" class="ingredients-grid">
+              <!-- Rendered dynamically by CookingSystem -->
+            </div>
+
+            <!-- Step 2: Bamboo Mat Rolling & Cutting -->
+            <div class="prep-heading" style="margin-top:10px;">2. ROLL & CUT ON BAMBOO MAT (MAKISU)</div>
+            <div id="bamboo-mat-display" class="bamboo-mat-container">
+              <!-- Rendered dynamically -->
+            </div>
+
+            <!-- Step 3: Plate Arrangement -->
+            <div class="prep-heading" style="margin-top:10px;">3. ARRANGE PIECES INTO EQUAL GROUPS</div>
+            <div id="plates-container" class="plates-grid">
+              <!-- Rendered dynamically -->
+            </div>
+
+            <!-- Plate Piece Controls -->
+            <div class="controls-row">
+              <button id="btn-add-1-piece" class="pixel-btn btn-primary">+1 PIECE TO EACH</button>
+              <button id="btn-add-2-pieces" class="pixel-btn btn-primary">+2 PIECES</button>
+              <button id="btn-add-3-pieces" class="pixel-btn btn-primary">+3 PIECES</button>
+              <button id="btn-clear-plates" class="pixel-btn" style="border-color:#ef4444; color:#fca5a5;">CLEAR</button>
+            </div>
+
+            <!-- Visual Multiplication Formula Box -->
+            <div class="formula-display-box">
+              <div id="multiplication-formula-text" class="formula-text">
+                <span class="math-factor">2 plates</span>
+                <span class="math-op">×</span>
+                <span class="math-factor">2 pieces</span>
+                <span class="math-op">=</span>
+                <span class="math-product">4 TOTAL PIECES</span>
+              </div>
+              <div id="repeated-addition-text" class="repeated-addition-note">
+                💡 Repeated Addition: 2 + 2 = 4
+              </div>
+            </div>
+
+            <!-- Serve Button -->
+            <div style="text-align:center; margin-top:12px;">
+              <button id="btn-serve-order" class="pixel-btn btn-serve">
+                🥢 SERVE ORDER TO CUSTOMER!
+              </button>
+            </div>
+
+            <!-- Kitchen Feedback Box -->
+            <div id="kitchen-feedback-box" class="feedback-box hidden"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==============================================
+         5. ORDER COMPLETE MODAL
+         ============================================== -->
+    <section id="order-complete-screen" class="screen">
+      <div class="order-complete-box pixel-box">
+        <h2 id="order-complete-name" class="screen-title" style="color:var(--neon-green);">CUSTOMER DELIGHTED!</h2>
+        <div style="font-size:2.5rem; margin:12px 0;">😋🍣</div>
+        
+        <div id="order-complete-math">
+          <!-- Math equation -->
+        </div>
+
+        <div id="order-complete-addition" style="font-size:1.1rem; color:#bbf7d0; margin-bottom:14px;">
+          <!-- Repeated addition breakdown -->
+        </div>
+
+        <div id="order-complete-coins" style="font-family:var(--font-pixel); font-size:1.2rem; color:var(--gold-coin); margin-bottom:20px;">
+          +50 Coins Earned!
+        </div>
+
+        <div>
+          <button id="btn-next-customer" class="pixel-btn btn-confirm" style="padding:14px 28px; font-size:0.9rem;">
+            SERVE NEXT CUSTOMER ➔
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         6. LEVEL COMPLETE SCREEN
+         ============================================== -->
+    <section id="level-complete-screen" class="screen">
+      <div class="complete-box pixel-box">
+        <h2 id="complete-level-title" class="screen-title" style="color:var(--gold-coin);">DAY COMPLETE!</h2>
+        
+        <div class="stars" style="margin:16px 0;">
+          <span class="star earned">★</span>
+          <span class="star earned">★</span>
+          <span class="star earned">★</span>
+        </div>
+
+        <div id="complete-score" style="font-family:var(--font-pixel); font-size:1.4rem; color:#4ade80; margin-bottom:8px;">100 PTS</div>
+        <div id="complete-coins" style="font-family:var(--font-pixel); font-size:1.2rem; color:var(--gold-coin); margin-bottom:18px;">🪙 150 Coins</div>
+
+        <div id="complete-concept-debrief" class="concept-card" style="text-align:left; margin-bottom:24px;">
+          <!-- Concept debrief -->
+        </div>
+
+        <div style="display:flex; justify-content:center; gap:12px;">
+          <button id="btn-replay-level" class="pixel-btn">↺ REPLAY DAY</button>
+          <button class="pixel-btn btn-to-level-select">🗺️ LEVEL MAP</button>
+          <button id="btn-next-level" class="pixel-btn btn-confirm">NEXT RESTAURANT DAY ➔</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         7. FINAL RESULTS SCREEN
+         ============================================== -->
+    <section id="final-results-screen" class="screen">
+      <div class="results-box pixel-box">
+        <div class="trophy-badge">🏆</div>
+        <h2 class="screen-title" style="color:var(--gold-coin); font-size:1.6rem;">GRAND SUSHI MASTER!</h2>
+        <div class="final-rank">LEGENDARY 5-STAR MASTER CHEF ⭐</div>
+        <p style="color:#fde68a; font-size:1.05rem; line-height:1.5;">
+          Congratulations! You have mastered all 10 multiplication levels and served hundreds of delighted customers. Your restaurant is the most famous in the world!
+        </p>
+
+        <div class="results-stats-grid">
+          <div class="stat-box">
+            <div style="font-size:0.85rem; color:#d97706;">DAYS COMPLETED</div>
+            <div id="final-levels-completed" style="font-family:var(--font-pixel); font-size:1.2rem; color:#fde68a;">10 / 10</div>
+          </div>
+          <div class="stat-box">
+            <div style="font-size:0.85rem; color:#d97706;">RESTAURANT COINS</div>
+            <div id="final-total-coins" style="font-family:var(--font-pixel); font-size:1.2rem; color:var(--gold-coin);">🪙 2,400</div>
+          </div>
+          <div class="stat-box" style="grid-column: span 2;">
+            <div style="font-size:0.85rem; color:#d97706;">TOTAL SCORE</div>
+            <div id="final-total-score" style="font-family:var(--font-pixel); font-size:1.2rem; color:#4ade80;">1,500 PTS</div>
+          </div>
+        </div>
+
+        <div class="concept-card" style="text-align:left;">
+          <h3 style="color:var(--gold-coin); font-family:var(--font-pixel); font-size:0.8rem; margin-bottom:6px;">MULTIPLICATION MASTERY ACHIEVED:</h3>
+          <ul style="margin-left:20px; line-height:1.6; color:#fef3c7;">
+            <li><strong>Equal Groups:</strong> Understanding groups of equal quantities</li>
+            <li><strong>Repeated Addition:</strong> e.g., 4 + 4 + 4 = 3 × 4 = 12</li>
+            <li><strong>Times Tables:</strong> 2, 3, 4, 5, 6, 7, 8, 9, 10 fully mastered!</li>
+            <li><strong>Arrays & Real Situations:</strong> Serving multiple plates, trays & large events</li>
+          </ul>
+        </div>
+
+        <div style="display:flex; justify-content:center; gap:12px; margin-top:20px;">
+          <button id="btn-play-again" class="pixel-btn btn-primary">PLAY FROM DAY 1 🍣</button>
+          <button class="pixel-btn btn-to-level-select">CHOOSE A DAY 🗺️</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         8. INSTRUCTIONS / ACADEMY SCREEN
+         ============================================== -->
+    <section id="instructions-screen" class="screen">
+      <div class="instructions-box pixel-box">
+        <h2 class="screen-title" style="text-align:center;">SUSHI CHEF ACADEMY</h2>
+        <p style="text-align:center; color:#fde68a; margin-bottom:16px;">
+          Learn how multiplication helps you prepare sushi orders quickly and accurately!
+        </p>
+
+        <div class="instructions-grid">
+          <div class="instr-card">
+            <div style="font-family:var(--font-pixel); font-size:0.8rem; color:var(--gold-coin); margin-bottom:4px;">
+              🍣 1. EQUAL GROUPS
+            </div>
+            <div style="font-size:0.95rem; color:#fef3c7; line-height:1.4;">
+              Multiplication happens when groups have the <strong>EXACT SAME NUMBER</strong> of items.<br>
+              <em>Example:</em> 3 plates with 4 sushi pieces each is 3 equal groups of 4.
+            </div>
+          </div>
+
+          <div class="instr-card">
+            <div style="font-family:var(--font-pixel); font-size:0.8rem; color:var(--gold-coin); margin-bottom:4px;">
+              ➕ 2. REPEATED ADDITION
+            </div>
+            <div style="font-size:0.95rem; color:#fef3c7; line-height:1.4;">
+              Instead of counting one by one, add the groups together:<br>
+              <strong>4 + 4 + 4 = 12</strong>.<br>
+              In multiplication, this is written as: <strong>3 × 4 = 12</strong>!
+            </div>
+          </div>
+
+          <div class="instr-card">
+            <div style="font-family:var(--font-pixel); font-size:0.8rem; color:var(--gold-coin); margin-bottom:4px;">
+              🍱 3. HOW TO COOK IN SUSHI RUSH
+            </div>
+            <div style="font-size:0.95rem; color:#fef3c7; line-height:1.4;">
+              1. <strong>Select Ingredient</strong> (Salmon, Tuna, Avocado, etc.)<br>
+              2. <strong>Roll & Slice</strong> on the bamboo mat<br>
+              3. <strong>Add pieces to each plate</strong> using the +1, +2, +3 buttons<br>
+              4. <strong>Check the math formula</strong>: [Plates] × [Pieces] = [Total]<br>
+              5. Click <strong>SERVE ORDER</strong> to delight your customer!
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align:center; margin-top:20px;">
+          <button class="pixel-btn btn-confirm btn-back-to-menu">◀ RETURN TO RESTAURANT</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Game Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/restaurantVis.js"></script>
+  <script src="js/gameState.js"></script>
+  <script src="js/levelsData.js"></script>
+  <script src="js/cooking.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/game.js"></script>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      window.uiCtrl.init();
+      window.gameEngine.init();
+    });
+  </script>
+</body>
+</html>

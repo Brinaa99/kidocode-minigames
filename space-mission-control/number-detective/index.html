@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>The Number Detective - Tables, Multiples & Factors</title>
+  <link rel="stylesheet" href="css/pixel-ui.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div id="game-container">
+    
+    <!-- Top Global Navigation Bar -->
+    <header class="top-nav-bar">
+      <div class="nav-brand">
+        <span>🕵️‍♂️</span> THE NUMBER DETECTIVE
+      </div>
+      <div class="nav-actions">
+        <button class="pixel-btn sound-toggle-btn" title="Toggle Sound">🔊 <span class="btn-lbl">Sound ON</span></button>
+        <button class="pixel-btn fullscreen-toggle-btn" title="Toggle Fullscreen">⛶ <span class="btn-lbl">Fullscreen</span></button>
+        <button class="pixel-btn btn-to-hq" title="Detective HQ">🏢 <span class="btn-lbl">HQ</span></button>
+        <button class="pixel-btn btn-to-case-select" title="Case Files">📂 <span class="btn-lbl">Cases</span></button>
+      </div>
+    </header>
+
+    <!-- ==============================================
+         1. MAIN MENU SCREEN
+         ============================================== -->
+    <main id="menu-screen" class="screen active">
+      <div class="menu-content pixel-box">
+        <div class="game-logo-badge">ROOM 1: TABLES, MULTIPLES & FACTORS</div>
+        <h1 class="game-title">THE NUMBER<br>DETECTIVE</h1>
+        <p class="game-subtitle">Investigate crime scenes, decode numerical clues, and crack city mysteries!</p>
+
+        <div class="menu-actions">
+          <button id="btn-start-game" class="pixel-btn btn-primary">
+            <span>🔍</span> ENTER HEADQUARTERS
+          </button>
+          <button id="btn-instructions" class="pixel-btn">
+            <span>📖</span> DETECTIVE HANDBOOK (GUIDE)
+          </button>
+        </div>
+
+        <div class="menu-footer">
+          <span>SUBJECT: MATHEMATICS</span>
+          <span>10 DETECTIVE CASES</span>
+          <button id="btn-reset-progress" class="pixel-btn" style="font-size:0.6rem; padding: 4px 8px;">RESET</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- ==============================================
+         2. HEADQUARTERS SCREEN
+         ============================================== -->
+    <section id="hq-screen" class="screen">
+      <div class="hq-content pixel-box">
+        <div class="hq-header">
+          <div style="font-family:var(--font-pixel); font-size:0.75rem; color:var(--lamp-amber); margin-bottom:4px;">
+            CENTRAL NUMBER DETECTIVE BUREAU
+          </div>
+          <h2 class="screen-title">DETECTIVE HEADQUARTERS</h2>
+          <p style="color:#94a3b8; font-size:0.95rem;">Review your badge rank and open active investigation files.</p>
+        </div>
+
+        <div class="hq-stats-grid">
+          <div class="hq-stat-card">
+            <div class="stat-label">DETECTIVE RANK</div>
+            <div id="hq-detective-rank" class="stat-val">Junior Investigator 🔎</div>
+          </div>
+          <div class="hq-stat-card">
+            <div class="stat-label">CASES SOLVED</div>
+            <div id="hq-cases-solved" class="stat-val">0 / 10</div>
+          </div>
+          <div class="hq-stat-card">
+            <div class="stat-label">BUREAU SCORE</div>
+            <div id="hq-total-score" class="stat-val">0 PTS</div>
+          </div>
+          <div class="hq-stat-card">
+            <div class="stat-label">CLUES DISCOVERED</div>
+            <div id="hq-clues-count" class="stat-val">0</div>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:center; gap:14px; margin-top:20px;">
+          <button class="pixel-btn btn-back-to-menu">◀ MAIN MENU</button>
+          <button id="btn-hq-open-cases" class="pixel-btn btn-primary">OPEN ACTIVE CASES 📂</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         3. CASE SELECTION SCREEN
+         ============================================== -->
+    <section id="case-select-screen" class="screen">
+      <div style="text-align:center; margin-bottom:18px;">
+        <h2 class="screen-title">ACTIVE CASE ARCHIVE</h2>
+        <p style="color:#94a3b8; font-size:0.9rem;">Select a case to inspect evidence and deduce the culprit.</p>
+      </div>
+
+      <div id="case-grid" class="case-grid">
+        <!-- Rendered dynamically by UIController -->
+      </div>
+
+      <div style="text-align:center; margin-top:10px;">
+        <button class="pixel-btn btn-to-hq">◀ RETURN TO HEADQUARTERS</button>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         4. CASE BRIEFING SCREEN
+         ============================================== -->
+    <section id="briefing-screen" class="screen">
+      <div class="briefing-box pixel-box">
+        <div class="briefing-header">
+          <div id="briefing-topic-tag" style="font-family:var(--font-pixel); font-size:0.7rem; color:var(--lamp-amber); margin-bottom:4px;">
+            TOPIC: MULTIPLICATION
+          </div>
+          <h2 id="briefing-case-title" class="briefing-title">Case 1 - The Missing Number</h2>
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <div style="font-family:var(--font-pixel); font-size:0.7rem; color:var(--evidence-red); margin-bottom:4px;">INCIDENT REPORT</div>
+          <p id="briefing-lore-text" style="font-size:1rem; line-height:1.45; color:#cbd5e1;">Loading incident lore...</p>
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <div style="font-family:var(--font-pixel); font-size:0.7rem; color:var(--gold-badge); margin-bottom:4px;">INVESTIGATION DIRECTIVE</div>
+          <p id="briefing-objective-text" style="font-size:0.95rem; color:#e2e8f0;">Loading directive...</p>
+        </div>
+
+        <div style="margin-bottom:18px;">
+          <div id="briefing-math-concept" class="concept-card">
+            Mathematical concept...
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <button class="pixel-btn btn-to-case-select">◀ CASE ARCHIVE</button>
+          <button id="btn-briefing-start-case" class="pixel-btn btn-confirm">START INVESTIGATION ➔</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         5. INVESTIGATION GAMEPLAY SCREEN
+         ============================================== -->
+    <section id="investigation-screen" class="screen">
+      <!-- Top HUD -->
+      <div class="game-hud">
+        <div class="hud-item">
+          <span class="hud-label">FILE:</span>
+          <span id="hud-case-title" class="hud-val">CASE #1</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">EVIDENCE:</span>
+          <span id="hud-case-progress" class="hud-val">Clue 1 of 3</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">SCORE:</span>
+          <span id="hud-score" class="hud-val" style="color:#4ade80;">0</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">RANK:</span>
+          <span id="hud-rank-tag" class="hud-val" style="font-size:0.65rem;">Junior Investigator</span>
+        </div>
+      </div>
+
+      <!-- Main Crime Deck -->
+      <div class="investigation-deck">
+        
+        <!-- Left: Scene View Canvas & Detective Notebook -->
+        <div class="scene-view-panel">
+          <div class="canvas-container">
+            <canvas id="detective-canvas"></canvas>
+          </div>
+
+          <!-- Detective Notebook -->
+          <div class="notebook-panel">
+            <div class="notebook-header">
+              <span>📓</span> DETECTIVE EVIDENCE NOTEBOOK
+            </div>
+            <ul id="notebook-clues-list" class="notebook-clues-list">
+              <!-- Dynamically populated -->
+            </ul>
+          </div>
+        </div>
+
+        <!-- Right: Evidence Operations Console -->
+        <div class="operations-panel pixel-box">
+          <div>
+            <div id="case-stage-title" class="stage-heading">EVIDENCE 1: SCENE INSPECTION</div>
+            <p id="case-stage-desc" class="stage-desc">Examining crime scene...</p>
+
+            <div id="case-question-text" class="question-box">
+              Deduction question...
+            </div>
+
+            <!-- Mathematical Evidence Options Grid -->
+            <div id="evidence-options-grid" class="evidence-options-grid">
+              <!-- Dynamically populated -->
+            </div>
+
+            <!-- Detective Hint Button & Box -->
+            <div style="margin-top:14px; display:flex; justify-content:space-between; align-items:center;">
+              <button id="btn-investigation-hint" class="pixel-btn btn-hint" style="font-size:0.65rem;">
+                💡 DETECTIVE HINT
+              </button>
+            </div>
+            <div id="investigation-hint-box" class="hint-box hidden"></div>
+
+            <!-- Feedback Box -->
+            <div id="investigation-feedback-box" class="feedback-box hidden"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==============================================
+         6. CASE COMPLETE SCREEN
+         ============================================== -->
+    <section id="case-complete-screen" class="screen">
+      <div class="complete-box pixel-box">
+        <div style="font-size:2.8rem; margin-bottom:8px;">🔍📜</div>
+        <h2 id="complete-case-title" class="screen-title" style="color:var(--neon-green);">CASE SOLVED!</h2>
+        
+        <div class="stars" style="margin:14px 0;">
+          <span class="star earned">★</span>
+          <span class="star earned">★</span>
+          <span class="star earned">★</span>
+        </div>
+
+        <div id="complete-score" style="font-family:var(--font-pixel); font-size:1.4rem; color:var(--gold-badge); margin-bottom:16px;">
+          100 PTS
+        </div>
+
+        <div id="complete-concept-debrief" class="concept-card" style="text-align:left; margin-bottom:24px;">
+          <!-- Debrief text -->
+        </div>
+
+        <div style="display:flex; justify-content:center; gap:12px;">
+          <button id="btn-replay-case" class="pixel-btn">↺ REPLAY CASE</button>
+          <button class="pixel-btn btn-to-case-select">📂 CASE ARCHIVE</button>
+          <button id="btn-next-case" class="pixel-btn btn-confirm">NEXT INVESTIGATION ➔</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         7. FINAL RESULTS SCREEN
+         ============================================== -->
+    <section id="final-results-screen" class="screen">
+      <div class="results-box pixel-box">
+        <div class="badge-trophy">🎖️</div>
+        <h2 class="screen-title" style="color:var(--gold-badge); font-size:1.6rem;">MASTER NUMBER DETECTIVE!</h2>
+        <div id="final-detective-rank" style="font-family:var(--font-pixel); font-size:1.1rem; color:#fde047; margin-bottom:16px;">
+          GRAND MASTER INVESTIGATOR 🌟
+        </div>
+        <p style="color:#cbd5e1; font-size:1.05rem; line-height:1.5;">
+          Extraordinary detective work! You have cracked all 10 city cases, mastered multiplication tables, multiples and factors, and defeated the Phantom Factor!
+        </p>
+
+        <div class="results-stats-grid">
+          <div class="stat-box" style="background:rgba(30,41,59,0.7); border:1px solid #475569; padding:12px; border-radius:4px;">
+            <div class="stat-label">CASES SOLVED</div>
+            <div id="final-cases-completed" class="stat-val" style="color:#ffffff;">10 / 10</div>
+          </div>
+          <div class="stat-box" style="background:rgba(30,41,59,0.7); border:1px solid #475569; padding:12px; border-radius:4px;">
+            <div class="stat-label">CLUES DISCOVERED</div>
+            <div id="final-clues-discovered" class="stat-val" style="color:var(--gold-badge);">30</div>
+          </div>
+          <div class="stat-box" style="background:rgba(30,41,59,0.7); border:1px solid #475569; padding:12px; border-radius:4px; grid-column:span 2;">
+            <div class="stat-label">TOTAL BUREAU SCORE</div>
+            <div id="final-total-score" class="stat-val" style="color:#4ade80;">1,250 PTS</div>
+          </div>
+        </div>
+
+        <div class="concept-card" style="text-align:left; margin-bottom:20px;">
+          <h3 style="color:var(--gold-badge); font-family:var(--font-pixel); font-size:0.8rem; margin-bottom:6px;">MATHEMATICAL DETECTIVE MASTERY:</h3>
+          <ul style="margin-left:20px; line-height:1.6; color:#e2e8f0;">
+            <li><strong>Multiplication Tables:</strong> Fast calculation of factors and products</li>
+            <li><strong>Multiples & Sequences:</strong> Identifying multiples and common multiples</li>
+            <li><strong>Factors & Factor Pairs:</strong> Equal groupings and exact division</li>
+            <li><strong>Deductive Reasoning:</strong> Connecting clues and eliminating false claims</li>
+          </ul>
+        </div>
+
+        <div style="display:flex; justify-content:center; gap:12px;">
+          <button id="btn-play-again" class="pixel-btn btn-primary">REPLAY FROM CASE 1 🔍</button>
+          <button class="pixel-btn btn-to-case-select">CASE FILES 📂</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         8. DETECTIVE HANDBOOK (INSTRUCTIONS)
+         ============================================== -->
+    <section id="instructions-screen" class="screen">
+      <div class="instructions-box pixel-box">
+        <h2 class="screen-title" style="text-align:center;">NUMBER DETECTIVE HANDBOOK</h2>
+        <p style="text-align:center; color:#94a3b8; margin-bottom:16px;">
+          Official field guide for Junior Investigators of the Number Detective Bureau.
+        </p>
+
+        <div class="instructions-grid">
+          <div class="instr-card">
+            <div style="font-family:var(--font-pixel); font-size:0.8rem; color:var(--gold-badge); margin-bottom:4px;">
+              ✖️ 1. MULTIPLICATION TABLES & PRODUCTS
+            </div>
+            <div style="font-size:0.95rem; color:#e2e8f0; line-height:1.4;">
+              A <strong>product</strong> is the result of multiplying two factors together.<br>
+              <em>Example:</em> In <strong>7 × 8 = 56</strong>, 7 and 8 are factors, and 56 is the product.
+            </div>
+          </div>
+
+          <div class="instr-card">
+            <div style="font-family:var(--font-pixel); font-size:0.8rem; color:var(--gold-badge); margin-bottom:4px;">
+              🔢 2. MULTIPLES
+            </div>
+            <div style="font-size:0.95rem; color:#e2e8f0; line-height:1.4;">
+              <strong>Multiples</strong> are the numbers you get by skip-counting or multiplying by whole numbers.<br>
+              <em>Example:</em> Multiples of 4 are 4, 8, 12, 16, 20, 24...<br>
+              A <strong>common multiple</strong> is a number that appears in multiple sequences (e.g. 12 is a common multiple of 4 and 6).
+            </div>
+          </div>
+
+          <div class="instr-card">
+            <div style="font-family:var(--font-pixel); font-size:0.8rem; color:var(--gold-badge); margin-bottom:4px;">
+              🧩 3. FACTORS & FACTOR PAIRS
+            </div>
+            <div style="font-size:0.95rem; color:#e2e8f0; line-height:1.4;">
+              <strong>Factors</strong> are numbers that divide evenly into another number with no remainder.<br>
+              <em>Example:</em> Factors of 24 are 1, 2, 3, 4, 6, 8, 12, 24.<br>
+              Factor pairs for 24 are (1×24), (2×12), (3×8), and (4×6).
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align:center; margin-top:20px;">
+          <button class="pixel-btn btn-confirm btn-back-to-menu">◀ RETURN TO HEADQUARTERS</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Game Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/detectiveVis.js"></script>
+  <script src="js/gameState.js"></script>
+  <script src="js/levelsData.js"></script>
+  <script src="js/investigation.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/game.js"></script>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      window.uiCtrl.init();
+      window.gameEngine.init();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,323 @@
+/**
+ * Space Mission Control - Pixel UI & Retro Styling
+ * Pixelated borders, neon glowing buttons, retro CRT effects,
+ * gauges, and space HUD telemetry components.
+ */
+
+:root {
+  --space-dark: #050814;
+  --space-navy: #090e24;
+  --space-purple: #1a103c;
+  --hud-blue: #1e3a8a;
+  --hud-cyan: #06b6d4;
+  --neon-cyan: #00e5ff;
+  --neon-green: #00ff66;
+  --neon-amber: #ffb700;
+  --neon-red: #ff3366;
+  --neon-purple: #c084fc;
+  --pixel-border-color: #3b82f6;
+  --panel-bg: rgba(9, 14, 36, 0.92);
+  --font-pixel: 'Press Start 2P', 'VT323', 'Courier New', monospace;
+  --font-mono: 'Share Tech Mono', 'Courier New', monospace;
+}
+
+/* Pixel Box Styling */
+.pixel-box {
+  background: var(--panel-bg);
+  border: 4px solid var(--pixel-border-color);
+  box-shadow: 
+    0 0 0 2px #000,
+    inset 0 0 0 2px rgba(255, 255, 255, 0.1),
+    0 8px 24px rgba(0, 0, 0, 0.6);
+  position: relative;
+  image-rendering: pixelated;
+}
+
+.pixel-box::before {
+  content: '';
+  position: absolute;
+  top: -4px; left: -4px; right: -4px; bottom: -4px;
+  pointer-events: none;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
+/* CRT Scanline Effect */
+.crt-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  pointer-events: none;
+  z-index: 999;
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  ), linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.03),
+    rgba(0, 255, 0, 0.01),
+    rgba(0, 0, 255, 0.03)
+  );
+  background-size: 100% 4px, 6px 100%;
+}
+
+/* Pixel Buttons */
+.pixel-btn {
+  font-family: var(--font-pixel);
+  font-size: 0.75rem;
+  padding: 10px 16px;
+  background: #111827;
+  color: #fff;
+  border: 3px solid #374151;
+  box-shadow: 
+    0 4px 0 #000,
+    0 0 10px rgba(0, 229, 255, 0.2);
+  cursor: pointer;
+  outline: none;
+  transition: all 0.1s ease;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  user-select: none;
+}
+
+.pixel-btn:hover:not(:disabled) {
+  background: #1f2937;
+  border-color: var(--neon-cyan);
+  box-shadow: 
+    0 4px 0 #000,
+    0 0 14px var(--neon-cyan);
+  transform: translateY(-2px);
+}
+
+.pixel-btn:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #000;
+}
+
+.pixel-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(80%);
+}
+
+.btn-primary {
+  background: #0369a1;
+  border-color: #38bdf8;
+}
+.btn-primary:hover:not(:disabled) {
+  background: #0284c7;
+  border-color: #7dd3fc;
+}
+
+.btn-confirm {
+  background: #15803d;
+  border-color: #4ade80;
+}
+.btn-confirm:hover:not(:disabled) {
+  background: #16a34a;
+  border-color: #86efac;
+}
+
+.btn-retry {
+  background: #b45309;
+  border-color: #facc15;
+}
+
+/* Probability Option Buttons */
+.prob-btn {
+  border-color: var(--btn-accent, #38bdf8);
+  font-size: 0.8rem;
+  min-height: 48px;
+}
+
+.prob-btn.selected {
+  background: var(--btn-accent, #38bdf8);
+  color: #000;
+  font-weight: bold;
+  box-shadow: 0 0 16px var(--btn-accent, #38bdf8);
+}
+
+/* Probability Gauge */
+.prob-gauge-container {
+  margin: 12px 0;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 10px;
+  border: 2px solid #1e293b;
+  border-radius: 4px;
+}
+
+.prob-gauge-track {
+  height: 24px;
+  background: #090e24;
+  border: 2px solid #334155;
+  position: relative;
+  overflow: visible;
+  border-radius: 4px;
+  background: linear-gradient(
+    to right,
+    #ef4444 0%,      /* Impossible */
+    #ef4444 5%,
+    #f97316 15%,     /* Unlikely */
+    #f97316 40%,
+    #eab308 50%,     /* Equally Likely */
+    #06b6d4 65%,     /* Likely */
+    #06b6d4 90%,
+    #22c55e 100%     /* Certain */
+  );
+}
+
+.prob-gauge-fill {
+  height: 100%;
+  width: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+}
+
+.prob-needle {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  width: 6px;
+  height: 36px;
+  background: #ffffff;
+  border: 2px solid #000;
+  transform: translateX(-50%);
+  box-shadow: 0 0 8px #ffffff;
+  transition: left 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+
+.prob-markers {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 0.6rem;
+  color: #94a3b8;
+  font-family: var(--font-pixel);
+}
+
+.marker {
+  text-align: center;
+}
+.marker.imp { color: #ef4444; }
+.marker.unl { color: #f97316; }
+.marker.eql { color: #eab308; }
+.marker.lik { color: #06b6d4; }
+.marker.cer { color: #22c55e; }
+
+/* Visual Equipment Slots */
+.visual-equipment-display {
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px dashed #334155;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 4px;
+}
+
+.equipment-label {
+  font-family: var(--font-pixel);
+  font-size: 0.65rem;
+  color: var(--neon-cyan);
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.equipment-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.slot-box {
+  padding: 6px 10px;
+  font-family: var(--font-pixel);
+  font-size: 0.65rem;
+  border-radius: 3px;
+  border: 2px solid #334155;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.slot-box.clear { background: rgba(34, 197, 94, 0.2); border-color: #22c55e; color: #4ade80; }
+.slot-box.jammed { background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #f87171; }
+.slot-box.safe { background: rgba(56, 189, 248, 0.2); border-color: #38bdf8; color: #7dd3fc; }
+.slot-box.danger { background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #fca5a5; }
+.slot-box.blue-beacon { background: rgba(6, 182, 212, 0.2); border-color: #06b6d4; color: #67e8f9; }
+.slot-box.red-beacon { background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #f87171; }
+.slot-box.smooth { background: rgba(250, 204, 21, 0.2); border-color: #facc15; color: #fef08a; }
+.slot-box.rough { background: rgba(148, 163, 184, 0.2); border-color: #94a3b8; color: #cbd5e1; }
+
+/* Floating Score Animation */
+.floating-score {
+  position: fixed;
+  font-family: var(--font-pixel);
+  font-size: 1rem;
+  color: #4ade80;
+  text-shadow: 0 0 8px #22c55e, 2px 2px 0 #000;
+  pointer-events: none;
+  animation: floatScore 1.2s ease-out forwards;
+  z-index: 1000;
+}
+
+.floating-score.bonus {
+  color: #facc15;
+  text-shadow: 0 0 10px #eab308, 2px 2px 0 #000;
+}
+
+@keyframes floatScore {
+  0% { opacity: 0; transform: translateY(0) scale(0.8); }
+  20% { opacity: 1; transform: translateY(-10px) scale(1.1); }
+  80% { opacity: 1; transform: translateY(-30px) scale(1); }
+  100% { opacity: 0; transform: translateY(-45px) scale(0.9); }
+}
+
+/* Feedback Boxes */
+.feedback-box {
+  margin-top: 14px;
+  padding: 12px 16px;
+  border-radius: 4px;
+  animation: fadeIn 0.2s ease-in;
+}
+
+.success-feedback {
+  background: rgba(21, 128, 61, 0.35);
+  border: 2px solid #22c55e;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.3);
+}
+
+.error-feedback {
+  background: rgba(185, 28, 28, 0.35);
+  border: 2px solid #ef4444;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+}
+
+.feedback-heading {
+  font-family: var(--font-pixel);
+  font-size: 0.75rem;
+  margin-bottom: 6px;
+}
+.success-feedback .feedback-heading { color: #4ade80; }
+.error-feedback .feedback-heading { color: #f87171; }
+
+.feedback-body {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: #e2e8f0;
+  margin-bottom: 10px;
+}
+
+/* Stars */
+.star {
+  font-size: 1.4rem;
+  margin: 0 2px;
+}
+.star.earned { color: #fbbf24; text-shadow: 0 0 8px #f59e0b; }
+.star.empty { color: #475569; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

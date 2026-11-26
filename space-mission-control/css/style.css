@@ -1,0 +1,689 @@
+/**
+ * Space Mission Control - Main Stylesheet
+ * Responsive layout, screen transitions, CRT aesthetic, and space typography.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #040714;
+  color: #f8fafc;
+  font-family: var(--font-mono, 'Courier New', monospace);
+  min-height: 100vh;
+  overflow-x: hidden;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+}
+
+/* App Container */
+#game-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: 12px;
+}
+
+/* Screen Switching */
+.screen {
+  display: none;
+  width: 100%;
+  flex: 1;
+}
+
+.screen.active {
+  display: flex;
+  flex-direction: column;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Top Navigation Bar / Controls */
+.top-nav-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 2px solid #334155;
+  border-radius: 4px;
+}
+
+.nav-brand {
+  font-family: var(--font-pixel);
+  font-size: 0.85rem;
+  color: var(--neon-cyan);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+}
+
+.nav-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* =========================================
+   1. MAIN MENU SCREEN
+   ========================================= */
+#menu-screen {
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.menu-content {
+  max-width: 650px;
+  width: 100%;
+  text-align: center;
+  padding: 32px 24px;
+  margin: auto;
+  z-index: 10;
+  background: rgba(10, 15, 38, 0.94);
+  border-color: #38bdf8;
+}
+
+.game-logo-badge {
+  font-family: var(--font-pixel);
+  font-size: 0.7rem;
+  color: var(--neon-amber);
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid var(--neon-amber);
+  display: inline-block;
+  padding: 4px 12px;
+  margin-bottom: 12px;
+  letter-spacing: 2px;
+}
+
+.game-title {
+  font-family: var(--font-pixel);
+  font-size: 1.8rem;
+  line-height: 1.3;
+  color: #ffffff;
+  text-shadow: 
+    0 0 12px var(--neon-cyan),
+    3px 3px 0 #0284c7;
+  margin-bottom: 12px;
+}
+
+.game-subtitle {
+  font-size: 1.1rem;
+  color: #94a3b8;
+  margin-bottom: 24px;
+  letter-spacing: 1px;
+}
+
+.menu-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.menu-actions .pixel-btn {
+  padding: 14px 20px;
+  font-size: 0.85rem;
+}
+
+.menu-footer {
+  font-size: 0.8rem;
+  color: #64748b;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #1e293b;
+  padding-top: 14px;
+}
+
+/* =========================================
+   2. LEVEL SELECT SCREEN
+   ========================================= */
+#level-select-screen {
+  padding: 16px 0;
+}
+
+.level-select-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.screen-title {
+  font-family: var(--font-pixel);
+  font-size: 1.4rem;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 8px rgba(6, 182, 212, 0.6);
+  margin-bottom: 6px;
+}
+
+.level-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.level-card {
+  padding: 16px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 130px;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.level-card.unlocked:hover {
+  transform: translateY(-4px);
+  border-color: var(--neon-cyan);
+}
+
+.level-card.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(70%);
+}
+
+.level-card.completed {
+  border-color: var(--neon-green);
+}
+
+.level-num {
+  font-family: var(--font-pixel);
+  font-size: 0.75rem;
+  color: var(--neon-amber);
+  margin-bottom: 4px;
+}
+
+.level-title {
+  font-family: var(--font-pixel);
+  font-size: 0.85rem;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.level-subtitle {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin-bottom: 12px;
+}
+
+.level-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-pixel);
+  font-size: 0.65rem;
+}
+
+.ready-badge {
+  color: var(--neon-cyan);
+  border: 1px solid var(--neon-cyan);
+  padding: 2px 6px;
+}
+
+.high-score {
+  color: var(--neon-amber);
+}
+
+/* =========================================
+   3. MISSION BRIEFING SCREEN
+   ========================================= */
+#briefing-screen {
+  justify-content: center;
+  align-items: center;
+}
+
+.briefing-box {
+  max-width: 750px;
+  width: 100%;
+  padding: 28px;
+  margin: auto;
+}
+
+.briefing-header {
+  border-bottom: 2px solid #334155;
+  padding-bottom: 12px;
+  margin-bottom: 18px;
+}
+
+.briefing-title {
+  font-family: var(--font-pixel);
+  font-size: 1.25rem;
+  color: var(--neon-cyan);
+}
+
+.briefing-section {
+  margin-bottom: 16px;
+}
+
+.section-label {
+  font-family: var(--font-pixel);
+  font-size: 0.7rem;
+  color: var(--neon-amber);
+  margin-bottom: 6px;
+  letter-spacing: 1px;
+}
+
+.briefing-lore {
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: #e2e8f0;
+}
+
+.concept-card {
+  background: rgba(30, 58, 138, 0.25);
+  border: 2px solid #2563eb;
+  padding: 12px 16px;
+  border-radius: 4px;
+}
+
+.concept-title {
+  font-family: var(--font-pixel);
+  font-size: 0.8rem;
+  color: #60a5fa;
+  margin-bottom: 6px;
+}
+
+.concept-explain {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: #bfdbfe;
+}
+
+.briefing-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+}
+
+/* =========================================
+   4. GAMEPLAY SCREEN & HUD
+   ========================================= */
+#gameplay-screen {
+  gap: 12px;
+}
+
+/* HUD Bar */
+.game-hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 2px solid #1e293b;
+  border-radius: 4px;
+  font-family: var(--font-pixel);
+  font-size: 0.75rem;
+}
+
+.hud-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hud-label {
+  color: #94a3b8;
+}
+
+.hud-val {
+  color: var(--neon-cyan);
+}
+
+.hud-bar-outer {
+  width: 90px;
+  height: 12px;
+  background: #020617;
+  border: 1px solid #475569;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.hud-bar-fill {
+  height: 100%;
+  width: 100%;
+  background: var(--neon-green);
+  transition: width 0.3s ease;
+}
+
+/* Main Command Deck Layout */
+.command-deck {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 14px;
+  flex: 1;
+}
+
+/* Left Column: Visualizers (Observation + Radar) */
+.visualizers-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.screen-frame {
+  position: relative;
+  background: #030712;
+  border: 3px solid #1e293b;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.screen-header-tab {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  font-family: var(--font-pixel);
+  font-size: 0.6rem;
+  color: var(--neon-cyan);
+  background: rgba(0, 0, 0, 0.7);
+  padding: 3px 6px;
+  border: 1px solid #334155;
+  z-index: 5;
+  letter-spacing: 1px;
+}
+
+.canvas-container {
+  width: 100%;
+  height: 280px;
+  position: relative;
+}
+
+#space-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.radar-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: rgba(6, 26, 20, 0.85);
+  border: 3px solid #065f46;
+  padding: 12px;
+  border-radius: 4px;
+}
+
+.radar-container {
+  width: 140px;
+  height: 140px;
+  flex-shrink: 0;
+}
+
+#radar-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.radar-telemetry {
+  flex: 1;
+  font-size: 0.85rem;
+  color: #a7f3d0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.telemetry-title {
+  font-family: var(--font-pixel);
+  font-size: 0.65rem;
+  color: #34d399;
+  margin-bottom: 4px;
+}
+
+/* Right Column: Mission Control Operations */
+.operations-panel {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.step-heading {
+  font-family: var(--font-pixel);
+  font-size: 0.85rem;
+  color: var(--neon-amber);
+  margin-bottom: 8px;
+}
+
+.step-desc {
+  font-size: 1rem;
+  line-height: 1.45;
+  color: #e2e8f0;
+  margin-bottom: 12px;
+}
+
+.question-prompt {
+  background: rgba(30, 41, 59, 0.6);
+  border-left: 4px solid var(--neon-cyan);
+  padding: 10px 14px;
+  font-size: 1.05rem;
+  color: #ffffff;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+/* Probability Choices Grid */
+.prob-options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* =========================================
+   5. LEVEL COMPLETE SCREEN
+   ========================================= */
+#level-complete-screen {
+  justify-content: center;
+  align-items: center;
+}
+
+.complete-box {
+  max-width: 650px;
+  width: 100%;
+  padding: 28px;
+  text-align: center;
+  margin: auto;
+  border-color: var(--neon-green);
+}
+
+.complete-stars-row {
+  margin: 16px 0;
+}
+
+.score-badge {
+  font-family: var(--font-pixel);
+  font-size: 1.3rem;
+  color: var(--neon-amber);
+  margin-bottom: 18px;
+}
+
+.debrief-card {
+  background: rgba(15, 23, 42, 0.8);
+  border: 2px solid #334155;
+  padding: 16px;
+  text-align: left;
+  margin-bottom: 24px;
+  font-size: 0.95rem;
+}
+
+.debrief-card h3 {
+  font-family: var(--font-pixel);
+  font-size: 0.75rem;
+  color: var(--neon-cyan);
+  margin-bottom: 8px;
+}
+
+.debrief-note {
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+.complete-actions {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+}
+
+/* =========================================
+   6. FINAL RESULTS SCREEN
+   ========================================= */
+#final-results-screen {
+  justify-content: center;
+  align-items: center;
+}
+
+.results-box {
+  max-width: 700px;
+  width: 100%;
+  padding: 32px;
+  text-align: center;
+  margin: auto;
+  border-color: var(--neon-amber);
+}
+
+.admiral-badge {
+  font-size: 3.5rem;
+  margin-bottom: 12px;
+  animation: pulseBadge 1.5s infinite alternate;
+}
+
+@keyframes pulseBadge {
+  from { transform: scale(1); filter: drop-shadow(0 0 4px #f59e0b); }
+  to { transform: scale(1.08); filter: drop-shadow(0 0 16px #fbbf24); }
+}
+
+.final-rank {
+  font-family: var(--font-pixel);
+  font-size: 1.1rem;
+  color: var(--neon-amber);
+  margin-bottom: 18px;
+}
+
+.results-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.stat-box {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid #334155;
+  padding: 14px;
+  border-radius: 4px;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-family: var(--font-pixel);
+  font-size: 1.2rem;
+  color: #ffffff;
+}
+
+/* =========================================
+   7. INSTRUCTIONS SCREEN
+   ========================================= */
+#instructions-screen {
+  padding: 16px 0;
+}
+
+.instructions-box {
+  max-width: 850px;
+  width: 100%;
+  margin: auto;
+  padding: 24px;
+}
+
+.instructions-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.instr-card {
+  padding: 12px 16px;
+  border-left: 6px solid #38bdf8;
+  background: rgba(15, 23, 42, 0.8);
+  border-radius: 0 4px 4px 0;
+}
+
+.instr-card.imp { border-color: #ef4444; }
+.instr-card.unl { border-color: #f97316; }
+.instr-card.eql { border-color: #eab308; }
+.instr-card.lik { border-color: #06b6d4; }
+.instr-card.cer { border-color: #22c55e; }
+
+.instr-title {
+  font-family: var(--font-pixel);
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.instr-desc {
+  font-size: 0.95rem;
+  color: #cbd5e1;
+  line-height: 1.4;
+}
+
+/* =========================================
+   RESPONSIVE DESIGN (TABLET & MOBILE)
+   ========================================= */
+@media (max-width: 1024px) {
+  .command-deck {
+    grid-template-columns: 1fr;
+  }
+  .canvas-container {
+    height: 220px;
+  }
+}
+
+@media (max-width: 640px) {
+  #game-container {
+    padding: 6px;
+  }
+  .game-title {
+    font-size: 1.3rem;
+  }
+  .top-nav-bar {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .radar-row {
+    flex-direction: column;
+    text-align: center;
+  }
+  .prob-options-grid {
+    grid-template-columns: 1fr;
+  }
+  .complete-actions {
+    flex-direction: column;
+  }
+}

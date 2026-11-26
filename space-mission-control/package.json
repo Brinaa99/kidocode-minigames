@@ -1,0 +1,20 @@
+{
+  "name": "space-mission-control",
+  "version": "1.0.0",
+  "description": "Educational retro pixel-art space simulation game teaching Probability - Likelihood for primary school students",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve -l 3000 .",
+    "serve": "npx serve -l 3000 ."
+  },
+  "keywords": [
+    "educational-game",
+    "probability",
+    "math-game",
+    "space-simulation",
+    "primary-school",
+    "mission-control"
+  ],
+  "author": "Google Antigravity Team",
+  "license": "MIT"
+}

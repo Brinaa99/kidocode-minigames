@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>DATA DETECTIVE — Collecting and Recording Data</title>
+  <meta name="description" content="Explore the park, observe wildlife, count specimens, record tallies, and build research charts in this interactive Standard 3 mathematics mini-game.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Patrick+Hand&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game-container" class="game-container">
+    <!-- Main Game Canvas -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Top HUD Overlay -->
+    <header id="hud" class="hud hidden">
+      <div class="hud-left">
+        <div class="hud-badge logo-badge">
+          <span class="hud-icon">🔍</span>
+          <span class="hud-title">DATA DETECTIVE</span>
+        </div>
+        <div class="hud-badge round-badge">
+          <span class="hud-label">ROUND</span>
+          <span id="hud-round" class="hud-value">1/10</span>
+        </div>
+      </div>
+
+      <div class="hud-center">
+        <div id="hud-objective" class="hud-objective">
+          <span class="objective-icon">🎯</span>
+          <span id="hud-objective-text" class="objective-text">Explore the garden & observe all birds!</span>
+          <span id="hud-objective-progress" class="objective-progress">(0/4)</span>
+        </div>
+      </div>
+
+      <div class="hud-right">
+        <div class="hud-badge score-badge">
+          <span class="hud-label">SCORE</span>
+          <span id="hud-score" class="hud-value">0</span>
+        </div>
+        <div class="hud-badge time-badge" id="hud-time-container">
+          <span class="hud-label">TIME</span>
+          <span id="hud-time" class="hud-value">60s</span>
+        </div>
+        <div class="hud-badge obs-badge">
+          <span class="hud-label">OBSERVED</span>
+          <span id="hud-obs" class="hud-value">0</span>
+        </div>
+        <div class="hud-actions">
+          <button id="btn-toggle-notebook" class="hud-btn notebook-btn" title="Open Field Notebook" aria-label="Open Field Notebook">
+            <span class="btn-icon">📋</span>
+            <span class="btn-text">LOG</span>
+            <span id="notebook-badge-count" class="notebook-badge">0</span>
+          </button>
+          <button id="btn-sound-toggle" class="hud-btn icon-only" title="Toggle Sound" aria-label="Toggle Sound">
+            <span id="sound-icon" class="btn-icon">🔊</span>
+          </button>
+          <button id="btn-help" class="hud-btn icon-only" title="How to Play" aria-label="Help">
+            <span class="btn-icon">❓</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Mini Radar / Compass Widget (Floating Bottom-Left) -->
+    <div id="radar-widget" class="radar-widget hidden">
+      <div class="radar-label">PARK SCANNER</div>
+      <canvas id="radar-canvas" width="100" height="100"></canvas>
+    </div>
+
+    <!-- Quick Mini Tally Drawer (Floating Right Edge) -->
+    <aside id="mini-tally-bar" class="mini-tally-bar hidden" title="Quick Field Notes">
+      <div class="mini-tally-header">
+        <span>FIELD TALLY</span>
+      </div>
+      <div id="mini-tally-list" class="mini-tally-list">
+        <!-- Injected dynamically -->
+      </div>
+    </aside>
+
+    <!-- Floating In-World Interaction Indicator -->
+    <div id="interact-prompt" class="interact-prompt hidden">
+      <div class="prompt-bubble">
+        <span class="prompt-icon">🔍</span>
+        <span id="prompt-text" class="prompt-text">OBSERVE</span>
+        <span class="prompt-key">[SPACE / TAP]</span>
+      </div>
+    </div>
+
+    <!-- Floating Feedback Message Popups Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Mobile Virtual Controls (Joystick & Action Button) -->
+    <div id="touch-controls" class="touch-controls hidden">
+      <div id="joystick-zone" class="joystick-zone">
+        <div id="joystick-base" class="joystick-base">
+          <div id="joystick-stick" class="joystick-stick"></div>
+        </div>
+      </div>
+      <div class="touch-actions">
+        <button id="btn-touch-observe" class="touch-action-btn observe-btn" aria-label="Observe specimen">
+          <span class="touch-icon">🔍</span>
+          <span class="touch-label">OBSERVE</span>
+        </button>
+        <button id="btn-touch-station" class="touch-action-btn station-btn" aria-label="Enter Station">
+          <span class="touch-icon">🔬</span>
+          <span class="touch-label">STATION</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODALS & SCREENS OVERLAYS -->
+    <!-- ======================================================== -->
+
+    <!-- Title / Start Screen -->
+    <div id="screen-title" class="screen-overlay title-screen">
+      <div class="title-backdrop"></div>
+      <div class="title-card">
+        <div class="title-hero-character">
+          <div class="detective-avatar">
+            <span class="avatar-hat">🤠</span>
+            <span class="avatar-face">🕵️‍♂️</span>
+            <span class="avatar-glass">🔍</span>
+          </div>
+        </div>
+        <div class="title-badge-tag">KIDOCODE MATHEMATICS • STANDARD 3</div>
+        <h1 class="game-main-title">DATA DETECTIVE</h1>
+        <p class="game-subtitle">"Explore. Observe. Record."</p>
+
+        <div class="title-features-pills">
+          <span class="feature-pill">🌿 Interactive Park</span>
+          <span class="feature-pill">📝 Live Tally Marks (||||/)</span>
+          <span class="feature-pill">📊 Real Data Charts</span>
+          <span class="feature-pill">🚫 No Quiz Questions</span>
+        </div>
+
+        <div class="title-btn-group">
+          <button id="btn-start-game" class="btn-arcade btn-primary pulse-btn">
+            <span class="btn-icon">🚀</span> START RESEARCH
+          </button>
+          <button id="btn-how-to-play" class="btn-arcade btn-secondary">
+            <span class="btn-icon">📖</span> HOW TO PLAY
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- How To Play Modal -->
+    <div id="modal-instructions" class="modal-overlay hidden">
+      <div class="modal-card instructions-card">
+        <div class="modal-header">
+          <h2><span class="header-icon">🧭</span> RESEARCH DETECTIVE HANDBOOK</h2>
+          <button id="btn-close-instructions" class="btn-close-modal" aria-label="Close">✕</button>
+        </div>
+        <div class="instructions-steps">
+          <div class="step-card">
+            <div class="step-number">1</div>
+            <div class="step-icon">🚶‍♂️</div>
+            <div class="step-info">
+              <h3>Explore the Park</h3>
+              <p>Move around using <strong>WASD / Arrow Keys</strong> or <strong>Touch Joystick</strong>. Click/Tap anywhere on the ground to walk.</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-number">2</div>
+            <div class="step-icon">🔍</div>
+            <div class="step-info">
+              <h3>Observe Wildlife</h3>
+              <p>Approach animals and objects. Press <strong>Space / Tap OBSERVE</strong> to record them in your field log.</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-number">3</div>
+            <div class="step-icon">📝</div>
+            <div class="step-info">
+              <h3>Record Tallies (||||/)</h3>
+              <p>Watch your notebook automatically draw authentic tally marks and bundle every 5 items together!</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-number">4</div>
+            <div class="step-icon">🔬</div>
+            <div class="step-info">
+              <h3>Return to Research Station</h3>
+              <p>Visit the solar research station to verify your tables, compare habitats, and construct visual bar charts!</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-instructions-gotit" class="btn-arcade btn-primary">
+            <span>LET'S EXPLORE!</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Research Notebook Clipboard Modal -->
+    <div id="modal-notebook" class="modal-overlay hidden">
+      <div class="modal-card notebook-clipboard">
+        <div class="clipboard-clamp"></div>
+        <div class="notebook-sheet">
+          <div class="notebook-header">
+            <div class="notebook-title-wrap">
+              <span class="notebook-icon">📋</span>
+              <div>
+                <h2 class="notebook-title">FIELD OBSERVATION LOG</h2>
+                <p id="notebook-round-info" class="notebook-subtitle">Round 1 • Garden Sector</p>
+              </div>
+            </div>
+            <button id="btn-close-notebook" class="btn-close-notebook" aria-label="Close Notebook">✕</button>
+          </div>
+
+          <div class="notebook-rule-line"></div>
+
+          <!-- Active Tally Record Sheets -->
+          <div id="notebook-records-container" class="notebook-records-container">
+            <!-- Dynamic Category Tally Rows generated via JS -->
+          </div>
+
+          <div class="notebook-tally-guide">
+            <span class="guide-tag">TALLY KEY:</span>
+            <span class="guide-sample">| = 1</span>
+            <span class="guide-sample">|| = 2</span>
+            <span class="guide-sample">||| = 3</span>
+            <span class="guide-sample">|||| = 4</span>
+            <span class="guide-sample highlight-bundle"><s>||||</s> = 5 (Group of 5)</span>
+          </div>
+
+          <div class="notebook-footer">
+            <div class="notebook-total">
+              TOTAL SPECIMENS RECORDED: <strong id="notebook-total-count">0</strong>
+            </div>
+            <button id="btn-notebook-station-shortcut" class="btn-arcade btn-secondary btn-sm hidden">
+              <span>GO TO STATION 🔬</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Research Station Interactive Lab Modal (For Rounds 6, 8, 9, 10 & Station Visits) -->
+    <div id="modal-station" class="modal-overlay hidden">
+      <div class="modal-card station-lab-card">
+        <div class="station-lab-header">
+          <div class="lab-title-group">
+            <span class="lab-icon">🔬</span>
+            <div>
+              <h2 id="station-modal-title">RESEARCH STATION LAB</h2>
+              <p id="station-modal-subtitle">Verify field logs, compare habitats & build data charts</p>
+            </div>
+          </div>
+          <button id="btn-close-station" class="btn-close-modal" aria-label="Close Station">✕</button>
+        </div>
+
+        <div id="station-content-body" class="station-content-body">
+          <!-- Dynamically swapped based on round task:
+               1. Standard Verification & Data Table
+               2. Habitat Comparison (North vs South)
+               3. Table Reconstruction (Stamp Missing Values)
+               4. Interactive Bar Chart Builder
+          -->
+        </div>
+
+        <div class="station-lab-footer">
+          <div id="station-status-message" class="station-status-msg">
+            Field data matches observation log! Ready to complete research.
+          </div>
+          <button id="btn-station-submit" class="btn-arcade btn-primary pulse-btn">
+            <span class="btn-icon">✅</span> <span id="station-submit-text">SUBMIT RESEARCH DATA</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Round Complete Victory Banner / Modal -->
+    <div id="modal-round-complete" class="modal-overlay hidden">
+      <div class="modal-card round-complete-card">
+        <div class="confetti-particles" id="confetti-container"></div>
+        <div class="round-complete-badge">🎉 ROUND COMPLETE!</div>
+        <h2 id="round-complete-title" class="round-title">Garden Birds Recorded!</h2>
+        <p id="round-complete-desc" class="round-desc">All field data accurately observed and recorded in the research log.</p>
+
+        <div class="round-stats-grid">
+          <div class="stat-box">
+            <span class="stat-label">OBSERVATIONS</span>
+            <span id="round-stat-obs" class="stat-val">4</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">ROUND SCORE</span>
+            <span id="round-stat-score" class="stat-val">+150</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">TIME TAKEN</span>
+            <span id="round-stat-time" class="stat-val">18s</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">ACCURACY</span>
+            <span id="round-stat-acc" class="stat-val">100%</span>
+          </div>
+        </div>
+
+        <div class="round-tally-preview" id="round-tally-summary">
+          <!-- Summary of tallies earned this round -->
+        </div>
+
+        <button id="btn-next-round" class="btn-arcade btn-primary pulse-btn">
+          <span>NEXT RESEARCH MISSION ➡️</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Final Grand Expedition End Screen -->
+    <div id="screen-game-over" class="screen-overlay game-over-screen hidden">
+      <div class="game-over-card">
+        <div class="certificate-seal">🏆</div>
+        <div class="cert-header-tag">OFFICIAL RESEARCH CERTIFICATE</div>
+        <h1 class="game-over-title">MASTER DATA DETECTIVE!</h1>
+        <p class="game-over-subtitle">Outstanding field research, precise tally recording, and flawless data visualization!</p>
+
+        <div class="stars-row" id="final-stars-container">
+          <span class="star filled">⭐</span>
+          <span class="star filled">⭐</span>
+          <span class="star filled">⭐</span>
+        </div>
+
+        <div class="final-stats-board">
+          <div class="final-stat-item">
+            <span class="final-stat-label">FINAL SCORE</span>
+            <span id="final-score" class="final-stat-val highlight">2,450</span>
+          </div>
+          <div class="final-stat-item">
+            <span class="final-stat-label">TOTAL OBSERVATIONS</span>
+            <span id="final-observations" class="final-stat-val">48</span>
+          </div>
+          <div class="final-stat-item">
+            <span class="final-stat-label">TOP CATEGORY</span>
+            <span id="final-best-category" class="final-stat-val">🐦 Birds (18)</span>
+          </div>
+          <div class="final-stat-item">
+            <span class="final-stat-label">TOTAL TIME</span>
+            <span id="final-time" class="final-stat-val">4m 12s</span>
+          </div>
+          <div class="final-stat-item">
+            <span class="final-stat-label">ACCURACY RATING</span>
+            <span id="final-accuracy" class="final-stat-val">100%</span>
+          </div>
+          <div class="final-stat-item">
+            <span class="final-stat-label">RESEARCH RANK</span>
+            <span id="final-rank" class="final-stat-val rank-badge">CHIEF SCIENTIST</span>
+          </div>
+        </div>
+
+        <!-- Final Grand Chart Display Showcase -->
+        <div class="final-chart-showcase">
+          <div class="showcase-title">📊 MASTER EXPEDITION DATA SUMMARY</div>
+          <div id="final-chart-bars" class="final-chart-bars">
+            <!-- Dynamic final bar chart bars -->
+          </div>
+        </div>
+
+        <div class="game-over-actions">
+          <button id="btn-play-again" class="btn-arcade btn-primary">
+            <span class="btn-icon">🔄</span> PLAY AGAIN
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
